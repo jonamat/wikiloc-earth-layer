@@ -1,0 +1,12 @@
+<h4>{{ .Type }}</h4>
+<div><strong>Rank: </strong>{{ .Rank }}/100</div>
+<div><strong>Distance: </strong>{{ .Distance }} {{ .DistanceUnits }}</div>
+<div><strong>Max elevation: </strong>{{ .Elevation }} {{ .ElevationUnits }} </div>
+<div><strong>Author: </strong>{{ .Author }}</div>
+<div><a href="{{ .Link }}">See on Wikiloc</a></div>
+<br />
+{{ range .Thumbnails }} 
+<a href="{{ $.Link }}/photo-{{ .ID }}">
+    <img src="{{ .URL }}" />
+</a>
+{{ end }}
