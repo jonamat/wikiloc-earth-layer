@@ -42,7 +42,7 @@ Tiny http server written in Go that fetch trails from wikiloc.com to compose KML
 
 ### Use locally
 - Download & extract the last release from [this page](https://github.com/jonamat/wikiloc-earth-layer/releases) according to the target platform.
-- Run the binary "wikiloc-earth-layer"
+- Run the binary `./bin/wikiloc-earth-layer` (or .exe in windows)
 - Open Google Earth, go to file > open and select from the extracted folder ./web/static/wikiloc-earth-layer.kml
 - Navigate to the area you want to explore
 - Refresh the layer by right clicking on the layer > refresh
