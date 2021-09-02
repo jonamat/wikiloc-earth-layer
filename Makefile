@@ -18,4 +18,4 @@ gen-kml:
 	go run ./cmd/gen-kml/gen-kml.go
 
 build-image:
-	docker build -t wikiloc-earth-layer .
+	docker build -t jonamat/wikiloc-earth-layer .

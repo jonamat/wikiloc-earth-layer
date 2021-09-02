@@ -32,7 +32,7 @@ Tiny http server written in Go that fetch trails from wikiloc.com to compose KML
 ## Usage
 
 ### Use remotely
-- Download [this KML file](https://jonamat.cloud/wikiloc-layer/static/wikiloc-earth-layer.kml) 
+- Download [this KML file](http://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kml) 
 - Open Google Earth Pro, go to file > open and select the downloaded wikiloc-earth-layer.kml
 - Navigate to the area you want to explore
 - Refresh the layer by right clicking on the layer > refresh
@@ -51,7 +51,7 @@ Tiny http server written in Go that fetch trails from wikiloc.com to compose KML
 If you want to compile the binary yourself, follow [these](#build-with-go) instructions  
 
 ### Use from the app (Android)
-- Download [this KML file](https://wikiloc-layer.io/static/wikiloc-layer.kml) 
+- Download [this KML file](http://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kml) 
 - Open it directly or import in Google Earth: go to settings > projects > open and select the downloaded wikiloc-layer.kml
 - Navigate to the area you want to explore
 - Refresh the layer by tapping on settings > project > layer > refresh

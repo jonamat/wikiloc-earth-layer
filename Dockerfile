@@ -13,6 +13,6 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifi
 # Static & templates from repo
 COPY ./web ./web
 # Def envs
-COPY ./.env .
+COPY ./.env ./.env
 
 ENTRYPOINT ["/app/bin/wikiloc-earth-layer"]
