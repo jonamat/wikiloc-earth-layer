@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/julienschmidt/httprouter"
 	imgtext "github.com/wikiloc-layer/pkg/controllers/img_text"
+	"github.com/wikiloc-layer/pkg/controllers/index"
 	networklink "github.com/wikiloc-layer/pkg/controllers/network_link"
 )
 
@@ -52,6 +53,7 @@ func main() {
 	// Define paths
 	router := httprouter.New()
 	router.ServeFiles("/static/*filepath", http.Dir("./web/static"))
+	router.GET("/", index.Index)
 	router.GET(OverlayEp, networklink.Compose)
 	router.GET(GenImgEp, imgtext.GenerateImage)
 
