@@ -1,5 +1,5 @@
 run:
-	go run ./cmd/server/wikiloc-layer-server.go
+	go run ./cmd/server/wikiloc-earth-layer.go
 
 build:
 	go build -v -x -o ./bin/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
