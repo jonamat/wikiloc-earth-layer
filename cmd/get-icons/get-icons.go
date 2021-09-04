@@ -67,7 +67,7 @@ func main() {
 			}
 
 			// Save the cropped icon into file
-			err = imgtools.SavePNG(icon, fmt.Sprint(counter), path)
+			err = imgtools.SavePNG(icon, path, fmt.Sprint(counter))
 			if err != nil {
 				log.Printf(`[%d] Error on image creation: %s`, counter, err)
 				return
