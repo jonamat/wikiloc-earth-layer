@@ -1,0 +1,46 @@
+# github.com/devork/twkb v0.0.0-20160219085512-11cf3bec9efc
+## explicit
+github.com/devork/twkb
+# github.com/joho/godotenv v1.3.0
+## explicit
+github.com/joho/godotenv
+# github.com/julienschmidt/httprouter v1.3.0
+## explicit
+github.com/julienschmidt/httprouter
+# github.com/srwiley/oksvg v0.0.0-20210519022825-9fc0c575d5fe
+## explicit
+github.com/srwiley/oksvg
+# github.com/srwiley/rasterx v0.0.0-20210519020934-456a8d69b780
+## explicit
+github.com/srwiley/rasterx
+# github.com/twpayne/go-kml v1.5.2
+## explicit
+github.com/twpayne/go-kml
+# golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
+## explicit
+golang.org/x/image/colornames
+golang.org/x/image/math/fixed
+golang.org/x/image/vector
+# golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
+## explicit
+golang.org/x/net/html
+golang.org/x/net/html/atom
+golang.org/x/net/html/charset
+# golang.org/x/text v0.3.6
+golang.org/x/text/encoding
+golang.org/x/text/encoding/charmap
+golang.org/x/text/encoding/htmlindex
+golang.org/x/text/encoding/internal
+golang.org/x/text/encoding/internal/identifier
+golang.org/x/text/encoding/japanese
+golang.org/x/text/encoding/korean
+golang.org/x/text/encoding/simplifiedchinese
+golang.org/x/text/encoding/traditionalchinese
+golang.org/x/text/encoding/unicode
+golang.org/x/text/internal/language
+golang.org/x/text/internal/language/compact
+golang.org/x/text/internal/tag
+golang.org/x/text/internal/utf8internal
+golang.org/x/text/language
+golang.org/x/text/runes
+golang.org/x/text/transform
