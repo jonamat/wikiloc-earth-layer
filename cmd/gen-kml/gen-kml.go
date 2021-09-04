@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -19,7 +18,7 @@ func main() {
 	port := os.Getenv("PORT")
 
 	if len(protocol) == 0 || len(host) == 0 {
-		log.Fatal("Protocol or host not defined")
+		panic("Protocol or host not defined")
 	}
 
 	var url string
