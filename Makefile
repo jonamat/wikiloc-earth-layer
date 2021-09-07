@@ -19,3 +19,6 @@ gen-kml:
 
 build-image:
 	docker build -t jonamat/wikiloc-earth-layer .
+
+release:
+	./scripts/release.sh
