@@ -1,43 +1,40 @@
+PREFIX=wikiloc-earth-layer_
+
 # Generate assets
 make gen-kml
 make get-icons
 
+# Cleanup relaese dir
+rm -rf ./release
+
 # Create dirs
-mkdir ./release/ 
-mkdir ./release/windows-amd64/
-mkdir ./release/linux-amd64/
-mkdir ./release/linux-arm64/
+mkdir ./release/ \
+./release/${PREFIX}windows-amd64/ \
+./release/${PREFIX}linux-amd64/ \
+./release/${PREFIX}linux-arm64/
 
 # Build for each platform
-GOOS=windows
-GOARCH=amd64
-go build -v -x -o ./release/windows-amd64/wikiloc-earth-layer.exe ./cmd/server/wikiloc-earth-layer.go &
-
-GOOS=linux
-GOARCH=amd64
-go build -v -x -o ./release/linux-amd64/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
-
-GOOS=linux
-GOARCH=arm64
-go build -v -x -o ./release/linux-arm64/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
+GOOS=windows GOARCH=amd64 go build -v -x -o ./release/${PREFIX}windows-amd64/wikiloc-earth-layer.exe ./cmd/server/wikiloc-earth-layer.go &
+GOOS=linux GOARCH=amd64 go build -v -x -o ./release/${PREFIX}linux-amd64/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go 
+GOOS=linux GOARCH=arm64 go build -v -x -o ./release/${PREFIX}linux-arm64/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
 
 # Copy web assets
-cp -R ./web ./release/windows-amd64/web/
-cp -R ./web ./release/linux-amd64/web/
-cp -R ./web ./release/linux-arm64/web/
+cp -R ./web ./release/${PREFIX}windows-amd64/web/
+cp -R ./web ./release/${PREFIX}linux-amd64/web/
+cp -R ./web ./release/${PREFIX}linux-arm64/web/
 
 # Copy dotfile
-cp -R ./.env ./release/windows-amd64/.env
-cp -R ./.env ./release/linux-amd64/.env
-cp -R ./.env ./release/linux-arm64/.env
+cp -R ./.env ./release/${PREFIX}windows-amd64/.env
+cp -R ./.env ./release/${PREFIX}linux-amd64/.env
+cp -R ./.env ./release/${PREFIX}linux-arm64/.env
 
 # Zip folders
 cd ./release/
-zip -r ./windows-amd64.zip ./windows-amd64/
-zip -r ./linux-amd64.zip ./linux-amd64/
-zip -r ./linux-arm64.zip ./linux-arm64/
+zip -r ./${PREFIX}windows-amd64.zip ./${PREFIX}windows-amd64/
+zip -r ./${PREFIX}linux-amd64.zip ./${PREFIX}linux-amd64/
+zip -r ./${PREFIX}linux-arm64.zip ./${PREFIX}linux-arm64/
 
 # Destroy release dirs
-rm -rf ./windows-amd64
-rm -rf ./linux-amd64
-rm -rf ./linux-arm64
+rm -rf ./${PREFIX}windows-amd64
+rm -rf ./${PREFIX}linux-amd64
+rm -rf ./${PREFIX}linux-arm64
