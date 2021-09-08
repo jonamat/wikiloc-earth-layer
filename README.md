@@ -109,4 +109,4 @@ To use devcontainer feature you need to have Docker installed and the Remote Con
 See [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) for details.  
 
 ## Licence
-MIT
+GNU GPLv3
