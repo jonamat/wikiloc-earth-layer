@@ -94,24 +94,26 @@ I recommend using the layer in combination with
 The project is a suite of 3 software
 - **get-icons** to fetch the svg icon set from wikiloc.com and convert them to png
 - **gen-kml** to generate the init KML file which contains the network link for Google Earth
-- **wikiloc-connector** is the http server that handle the updates from the network link
+- **wikiloc-earth-layer** is the http server that handle the updates from the network link
 
 In the Makefile are defined the commands to run and build the source.  
 The project is set up to follow the guidelines of the Golang team that you can find [here](https://github.com/golang-standards/project-layout).
 
 ### Build with Go
-- Download [Go](https://golang.org)
-- Clone the repo
-- Go to the directory of the project with your terminal and type "make build"
+- Install [Go](https://golang.org)
+- Clone this repo
+- Go to the directory of the project with your terminal and type `make build` OR type:  
+   `go build -v -x -o ./bin/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go`
 - Wait for the build to finish
-- Now you can find the compiled binaries in ./bin/
+- Now you can find the compiled binaries in `./bin/`
 
 ### Build with Docker
-- Download [Docker](https://)
-- Clone the repo
-- Go to the directory of the project with your terminal and type "make build-image"
+- Install [Docker](https://www.docker.com/)
+- Clone this repo
+- Go to the directory of the project with your terminal and type `make build-with-docker` OR type:  
+  `docker run --mount type=bind,source="$(pwd)"/target,target=/app golang:1.17.0-bullseye make build & make gen-kml & make get-icons & wait`
 - Wait for the build to finish
-- Now you can find the compiled binaries in ./bin/
+- Now you can find the compiled binaries in `./bin/`
 
 ### Working with dev containers
 This repository provide all the tools to start writing and testing your code without any configuration.  

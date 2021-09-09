@@ -1,4 +1,4 @@
-/bin/*
-/web/static/icons/*
+/bin
+/web/static/icons
 /TODO*
 /release

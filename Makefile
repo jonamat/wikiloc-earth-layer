@@ -13,6 +13,9 @@ gen-kml:
 build:
 	go build -v -x -o ./bin/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
 
+build-with-docker:
+	docker run --mount type=bind,source="$(pwd)"/target,target=/app golang:1.17.0-bullseye make build & make gen-kml & make get-icons & wait
+
 # Build instructions for docker scratch image
 build-static:
 	CGO_ENABLED=0 && GOOS=linux && GOARCH=amd64 && go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o ./bin/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go

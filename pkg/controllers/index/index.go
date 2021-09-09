@@ -7,5 +7,5 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	http.Redirect(w, r, "https://jonamat.github.io/wikiloc-earth-layer/", 301)
+	http.Redirect(w, r, "https://jonamat.github.io/wikiloc-earth-layer/", http.StatusMovedPermanently)
 }
