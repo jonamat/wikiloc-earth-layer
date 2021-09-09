@@ -1,4 +1,7 @@
-PREFIX=wikiloc-earth-layer_
+VERSION=`git describe --tags`
+PREFIX=wikiloc-earth-layer_${VERSION}_
+
+echo "Building assets for the relese ${VERSION}..."
 
 # Generate assets
 make gen-kml
@@ -14,9 +17,9 @@ mkdir ./release/ \
 ./release/${PREFIX}linux-arm64/
 
 # Build for each platform
-GOOS=windows GOARCH=amd64 go build -v -x -o ./release/${PREFIX}windows-amd64/wikiloc-earth-layer.exe ./cmd/server/wikiloc-earth-layer.go &
-GOOS=linux GOARCH=amd64 go build -v -x -o ./release/${PREFIX}linux-amd64/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
-GOOS=linux GOARCH=arm64 go build -v -x -o ./release/${PREFIX}linux-arm64/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
+GOOS=windows GOARCH=amd64 go build -o ./release/${PREFIX}windows-amd64/wikiloc-earth-layer.exe ./cmd/server/wikiloc-earth-layer.go &
+GOOS=linux GOARCH=amd64 go build -o ./release/${PREFIX}linux-amd64/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
+GOOS=linux GOARCH=arm64 go build -o ./release/${PREFIX}linux-arm64/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
 
 # Copy assets
 cp -R ./web ./release/${PREFIX}windows-amd64/web/
