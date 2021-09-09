@@ -1,13 +1,6 @@
 run:
 	go run ./cmd/server/wikiloc-earth-layer.go
 
-build:
-	go build -v -x -o ./bin/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
-
-# Build instructions for docker scratch image
-build-static:
-	CGO_ENABLED=0 && GOOS=linux && GOARCH=amd64 && go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o ./bin/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
-
 serve:
 	./bin/wikiloc-earth-layer
 
@@ -17,5 +10,15 @@ get-icons:
 gen-kml:
 	go run ./cmd/gen-kml/gen-kml.go
 
+build:
+	go build -v -x -o ./bin/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
+
+# Build instructions for docker scratch image
+build-static:
+	CGO_ENABLED=0 && GOOS=linux && GOARCH=amd64 && go build -a -tags netgo -ldflags '-w -extldflags "-static"' -o ./bin/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
+
 build-image:
 	docker build -t jonamat/wikiloc-earth-layer .
+
+build-release:
+	./scripts/release.sh
