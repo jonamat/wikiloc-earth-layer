@@ -15,6 +15,7 @@ const requests = 80
 const path = "./web/static/icons/"
 
 func main() {
+	totalIcons := 0
 	var wg sync.WaitGroup
 
 	tr := &http.Transport{
@@ -72,8 +73,12 @@ func main() {
 				log.Printf(`[%d] Error on image creation: %s`, counter, err)
 				return
 			}
+
+			totalIcons++
 		}(client, counter, &wg)
 	}
 
 	wg.Wait()
+
+	fmt.Printf("Successfully downloaded %d icons. Tested %d URLs", totalIcons, requests)
 }

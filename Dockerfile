@@ -14,7 +14,8 @@ ENV HOST=${HOST}
 # Envs for build
 ENV CGO_ENABLED=0
 ENV GOOS=linux 
-ENV GOARCH=amd64 
+ENV GOARCH=amd64
+ENV GOENV=production 
 
 # Import the codebase
 COPY . .

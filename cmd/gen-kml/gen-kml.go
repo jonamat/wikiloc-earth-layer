@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -55,4 +56,6 @@ func main() {
 	if err := kml.WriteIndent(file, "", "  "); err != nil {
 		panic(err)
 	}
+
+	log.Printf("Generated init KML with the following vars:\nPROTOCOL: %s\nHOST: %s\nPORT: %s", protocol, host, port)
 }

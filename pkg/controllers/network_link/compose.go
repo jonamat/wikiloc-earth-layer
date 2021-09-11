@@ -9,20 +9,40 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
+	"path"
 	"strconv"
 	"strings"
 	"sync"
 	"text/template"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/spf13/viper"
 	"github.com/twpayne/go-kml"
 	"github.com/wikiloc-layer/pkg/scraper"
 )
 
-var descriptionTemplate = template.Must(template.ParseFiles("./web/templates/description.tmpl"))
-var distanceUnit = "mi"
-var elevationUnit = "ft"
+var (
+	client              = &http.Client{}
+	distanceUnit        string
+	elevationUnit       string
+	legendEp            = viper.GetString("endpoints.legend")
+	units               = viper.GetString("units")
+	serverURL           = viper.GetString("serverURL")
+	descriptionTemplate = template.Must(template.ParseFiles(path.Join(viper.GetString("basepath"), "./web/templates/description.tmpl")))
+)
+
+func init() {
+	switch viper.GetString("mesSys") {
+	case "metric":
+		distanceUnit = "Km"
+		elevationUnit = "m"
+	case "imperial":
+		distanceUnit = "mi"
+		elevationUnit = "ft"
+	default:
+		log.Println("Unkown measurement system")
+	}
+}
 
 func sendEmtpy(err error, w http.ResponseWriter) {
 	log.Println(err)
@@ -32,14 +52,6 @@ func sendEmtpy(err error, w http.ResponseWriter) {
 }
 
 func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	client := &http.Client{}
-	units := os.Getenv("UNITS")
-	serverURL := os.Getenv("URL")
-
-	/* -------------------------------------------------------------------------- */
-	/*                                Parse request                               */
-	/* -------------------------------------------------------------------------- */
-
 	params, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		sendEmtpy(err, w)
@@ -112,7 +124,7 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	var trailsCount = len(body.Trails)
-	var legendURL = fmt.Sprintf("%s/api/v1/gen-img?text=%s", serverURL, url.QueryEscape(fmt.Sprintf("Trails found in this area: %d|Trails displayed: %d", body.Count, trailsCount)))
+	var legendURL = fmt.Sprintf("%s%s?text=%s", serverURL, legendEp, url.QueryEscape(fmt.Sprintf("Trails found in this area: %d|Trails displayed: %d", body.Count, trailsCount)))
 
 	log.Printf("Body parsed successfully. Found %d trails in his area. Fetched %d trails.\n", body.Count, len(body.Trails))
 
@@ -171,7 +183,6 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				distance = 0.0
 			}
 			if units == "metric" {
-				distanceUnit = "Km"
 				distance = distance * 1.60934 // mi to km
 			}
 
@@ -180,7 +191,6 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				distance = 0.0
 			}
 			if units == "metric" {
-				elevationUnit = "m"
 				elevation = elevation * 0.3048 // ft to m
 			}
 
