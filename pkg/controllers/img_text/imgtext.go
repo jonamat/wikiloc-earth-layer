@@ -7,10 +7,10 @@ import (
 	"net/url"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/spf13/viper"
+	vp "github.com/spf13/viper"
 )
 
-var gChartBaseURL = viper.GetString("gChartBaseURL")
+var gChartBaseURL = vp.GetString("gChartBaseURL")
 
 func GenerateImage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	params, err := url.ParseQuery(r.URL.RawQuery)

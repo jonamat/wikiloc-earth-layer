@@ -8,13 +8,20 @@ import (
 	"sync"
 	"time"
 
+	_init "github.com/wikiloc-layer/pkg/_init"
 	imgtools "github.com/wikiloc-layer/pkg/img_tools"
 )
 
 const requests = 80
 const path = "./web/static/icons/"
 
+func init() {
+	// Load configuration and set viper singleton
+	_init.Init()
+}
+
 func main() {
+	totalIcons := 0
 	var wg sync.WaitGroup
 
 	tr := &http.Transport{
@@ -72,8 +79,12 @@ func main() {
 				log.Printf(`[%d] Error on image creation: %s`, counter, err)
 				return
 			}
+
+			totalIcons++
 		}(client, counter, &wg)
 	}
 
 	wg.Wait()
+
+	fmt.Printf("Successfully downloaded %d icons. Tested %d URLs\n", totalIcons, requests)
 }

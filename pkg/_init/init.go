@@ -7,18 +7,18 @@ import (
 	"path"
 
 	"github.com/joho/godotenv"
-	"github.com/spf13/viper"
+	vp "github.com/spf13/viper"
 )
 
 func init() {
 	// Build paths based on GOENV
 	var basepath string
-	bin, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
 
 	if os.Getenv("GOENV") == "production" {
+		bin, err := os.Executable()
+		if err != nil {
+			panic(err)
+		}
 		basepath = path.Dir(bin)
 	} else {
 		var err error
@@ -60,15 +60,15 @@ func init() {
 	}
 
 	// Get user configuration
-	viper.SetConfigType("yaml")
-	viper.ReadConfig(bytes.NewBuffer(config))
+	vp.SetConfigType("yaml")
+	vp.ReadConfig(bytes.NewBuffer(config))
 
 	// Setup global configuration
-	viper.Set("basepath", basepath)
-	viper.Set("protocol", protocol)
-	viper.Set("host", host)
-	viper.Set("port", port)
-	viper.Set("serverURL", serverURL)
+	vp.Set("basepath", basepath)
+	vp.Set("protocol", protocol)
+	vp.Set("host", host)
+	vp.Set("port", port)
+	vp.Set("serverURL", serverURL)
 }
 
 func Init() {}
