@@ -16,7 +16,7 @@ import (
 	"text/template"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/spf13/viper"
+	vp "github.com/spf13/viper"
 	"github.com/twpayne/go-kml"
 	"github.com/wikiloc-layer/pkg/scraper"
 )
@@ -25,14 +25,14 @@ var (
 	client              = &http.Client{}
 	distanceUnit        string
 	elevationUnit       string
-	legendEp            = viper.GetString("endpoints.legend")
-	units               = viper.GetString("units")
-	serverURL           = viper.GetString("serverURL")
-	descriptionTemplate = template.Must(template.ParseFiles(path.Join(viper.GetString("basepath"), "./web/templates/description.tmpl")))
+	legendEp            = vp.GetString("endpoints.legend")
+	units               = vp.GetString("units")
+	serverURL           = vp.GetString("serverURL")
+	descriptionTemplate = template.Must(template.ParseFiles(path.Join(vp.GetString("basepath"), "./web/templates/description.tmpl")))
 )
 
 func init() {
-	switch viper.GetString("mesSys") {
+	switch vp.GetString("mesSys") {
 	case "metric":
 		distanceUnit = "Km"
 		elevationUnit = "m"

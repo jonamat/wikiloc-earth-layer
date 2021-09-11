@@ -1,4 +1,4 @@
-VERSION := ${shell git describe --tag}
+VERSION = ${shell git describe --tag}
 
 run:
 	go run ./cmd/server/wikiloc-earth-layer.go

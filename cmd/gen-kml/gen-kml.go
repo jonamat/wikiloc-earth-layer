@@ -5,18 +5,21 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
+	vp "github.com/spf13/viper"
 	"github.com/twpayne/go-kml"
+	_init "github.com/wikiloc-layer/pkg/_init"
 )
 
-const overlayEndpoint = "/api/v1/overlay"
+func init() {
+	// Load configuration and set viper singleton
+	_init.Init()
+}
 
 func main() {
-	godotenv.Load()
-
-	protocol := os.Getenv("PROTOCOL")
-	host := os.Getenv("HOST")
-	port := os.Getenv("PORT")
+	overlayEndpoint := vp.GetString("endpoints.updates")
+	protocol := vp.GetString("protocol")
+	host := vp.GetString("host")
+	port := vp.GetString("port")
 
 	if len(protocol) == 0 || len(host) == 0 {
 		panic("Protocol or host not defined")

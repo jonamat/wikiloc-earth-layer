@@ -15,7 +15,6 @@ ENV HOST=${HOST}
 ENV CGO_ENABLED=0
 ENV GOOS=linux 
 ENV GOARCH=amd64
-ENV GOENV=production 
 
 # Import the codebase
 COPY . .
@@ -44,6 +43,7 @@ COPY --from=builder /build/web/static ./web/static
 
 # Default envs
 COPY ./.env ./.env
+COPY ./config.yml ./config.yml
 
 # Run the server
 ENTRYPOINT ["/app/bin/wikiloc-earth-layer"]

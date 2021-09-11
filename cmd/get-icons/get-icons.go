@@ -8,11 +8,17 @@ import (
 	"sync"
 	"time"
 
+	_init "github.com/wikiloc-layer/pkg/_init"
 	imgtools "github.com/wikiloc-layer/pkg/img_tools"
 )
 
 const requests = 80
 const path = "./web/static/icons/"
+
+func init() {
+	// Load configuration and set viper singleton
+	_init.Init()
+}
 
 func main() {
 	totalIcons := 0
@@ -80,5 +86,5 @@ func main() {
 
 	wg.Wait()
 
-	fmt.Printf("Successfully downloaded %d icons. Tested %d URLs", totalIcons, requests)
+	fmt.Printf("Successfully downloaded %d icons. Tested %d URLs\n", totalIcons, requests)
 }
