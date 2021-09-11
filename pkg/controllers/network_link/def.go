@@ -1,7 +1,5 @@
 package networklink
 
-const overlayTemplate = "<![CDATA[https://chart.apis.google.com/chart?chst=d_text_outline&chld=000000|20|l|ffffff|b|Trails%%20found%%20in%%20this%%20area:%%20%d|Trails%%20displayed:%%20%d]]>"
-
 type Thumbnail struct {
 	ID  uint64 `json:"id"`
 	URL string `json:"url"`

@@ -5,10 +5,10 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/julienschmidt/httprouter"
+	"github.com/spf13/viper"
+	_init "github.com/wikiloc-layer/pkg/_init"
 	imgtext "github.com/wikiloc-layer/pkg/controllers/img_text"
 	"github.com/wikiloc-layer/pkg/controllers/index"
 	networklink "github.com/wikiloc-layer/pkg/controllers/network_link"
@@ -27,47 +27,28 @@ func logger(next http.Handler) *Middleware {
 	return &Middleware{next: next}
 }
 
-const OverlayEp = "/api/v1/overlay"
-const GenImgEp = "/api/v1/gen-img"
+func init() {
+	// Load configuration and set viper singleton
+	_init.Init()
+}
 
 func main() {
-	godotenv.Load()
-	protocol := os.Getenv("PROTOCOL")
-	host := os.Getenv("HOST")
-	port := os.Getenv("PORT")
 
-	// Check envs
-	if len(protocol) == 0 || len(host) == 0 {
-		log.Fatal("Undefined protocol or host")
-	}
-
-	// Define server URL
-	var url string
-	if port != "80" || len(port) == 0 {
-		url = fmt.Sprintf("%s://%s:%s", protocol, host, port)
-	} else {
-		url = fmt.Sprintf("%s://%s", protocol, host)
-	}
-	os.Setenv("URL", url)
+	fmt.Println("B", viper.GetString("port"))
 
 	// Define paths
 	router := httprouter.New()
 	router.ServeFiles("/static/*filepath", http.Dir("./web/static"))
 	router.GET("/", index.Index)
-	router.GET(OverlayEp, networklink.Compose)
-	router.GET(GenImgEp, imgtext.GenerateImage)
+	router.GET(viper.GetString("endpoints.updates"), networklink.Compose)
+	router.GET(viper.GetString("endpoints.legend"), imgtext.GenerateImage)
 
-	// Use 80 as default port
-	if len(port) == 0 {
-		port = "80"
-	}
-
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", viper.GetString("port")))
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Server started on port %s", port)
+	log.Printf("Server started on port %s", viper.GetString("port"))
 
 	if err := http.Serve(listener, logger(router)); err != nil {
 		panic(err)

@@ -2,9 +2,11 @@ package imgtools
 
 import (
 	"image"
+
+	"github.com/spf13/viper"
 )
 
-const size = 128
+var size = viper.GetInt("iconSidePx")
 
 func MakeIcon(RawSVG *[]byte) (*image.RGBA, error) {
 	// Parse rawSVG and create a grayscale PNG

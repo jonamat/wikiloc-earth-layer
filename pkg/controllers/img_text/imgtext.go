@@ -7,10 +7,12 @@ import (
 	"net/url"
 
 	"github.com/julienschmidt/httprouter"
+	"github.com/spf13/viper"
 )
 
-func GenerateImage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+var gChartBaseURL = viper.GetString("gChartBaseURL")
 
+func GenerateImage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	params, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		log.Println(err)
@@ -27,7 +29,7 @@ func GenerateImage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	log.Printf("Converting text \"%s\" into image...", text)
 
-	res, err := http.Get("https://chart.apis.google.com/chart?chst=d_text_outline&chld=000000|20|l|ffffff|b|" + url.QueryEscape(text))
+	res, err := http.Get(gChartBaseURL + url.QueryEscape(text))
 
 	if err != nil {
 		log.Println(err)
@@ -48,7 +50,12 @@ func GenerateImage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		return
 	}
 
-	w.Write(image)
+	_, err = w.Write(image)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Internal Error", 500)
+		return
+	}
 
 	log.Println("Image sent succefully")
 }
