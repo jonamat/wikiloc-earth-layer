@@ -49,9 +49,20 @@ func init() {
 
 func sendEmtpy(err error, w http.ResponseWriter) {
 	log.Println(err)
-	// Todo send img overlay with error
+	var legendURL = fmt.Sprintf("%s%s?text=%s", serverURL, legendEp, url.QueryEscape(fmt.Sprintf("An error occurred during the request|See server logs for details")))
 	w.Header().Set("content-type", "application/vnd.google-earth.kml+xml")
-	kml.KML(kml.Document(kml.Name("Error"))).Write(w)
+	kml.KML(
+		kml.ScreenOverlay(
+			kml.Name("Trail count overlay"),
+			kml.Visibility(true),
+			kml.Color(color.RGBA{255, 255, 255, 255}),
+			kml.Icon(
+				kml.Href(legendURL),
+			),
+			kml.OverlayXY(kml.Vec2{X: 0, Y: 0, XUnits: kml.UnitsFraction, YUnits: kml.UnitsFraction}),
+			kml.ScreenXY(kml.Vec2{X: 10, Y: 25, XUnits: kml.UnitsPixels, YUnits: kml.UnitsPixels}),
+		),
+	).Write(w)
 }
 
 func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
