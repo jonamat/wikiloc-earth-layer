@@ -24,7 +24,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: "Get latest tag"
-        run: echo "RELEASE_VERSION=${git describe --tags}" >> $GITHUB_ENV
+        id: 'latesttag'
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: master
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -37,4 +40,4 @@ jobs:
             PROTOCOL=http
           tags: |
             jonamat/wikiloc-earth-layer:latest
-            jonamat/wikiloc-earth-layer:${{ env.RELEASE_VERSION }}
+            jonamat/wikiloc-earth-layer:${{ steps.latesttag.outputs.tag }}
