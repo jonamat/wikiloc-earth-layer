@@ -23,9 +23,18 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: "Get latest tag"
+        run: echo "RELEASE_VERSION=${git describe --tags}" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          push: true
           context: .
-          tags: jonamat/wikiloc-earth-layer:latest
+          push: true
+          build-args: |
+            HOST=wikiloc-earth-layer.jonamat.cloud
+            PORT=80
+            PROTOCOL=http
+          tags: |
+            jonamat/wikiloc-earth-layer:latest
+            jonamat/wikiloc-earth-layer:${{ env.RELEASE_VERSION }}
