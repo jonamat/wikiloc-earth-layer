@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	_init "github.com/wikiloc-layer/pkg/_init"
 	imgtools "github.com/wikiloc-layer/pkg/img_tools"
 )
 
@@ -15,6 +16,10 @@ const (
 	requests = 80
 	path     = "./web/static/icons/"
 )
+
+func init() {
+	_init.Init()
+}
 
 func main() {
 	totalIcons := 0
