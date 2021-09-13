@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"text/template"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
 	vp "github.com/spf13/viper"
@@ -22,12 +23,14 @@ import (
 )
 
 var (
-	client              = &http.Client{}
+	client              = &http.Client{Timeout: time.Duration(vp.GetInt("connectionTimeout")) * time.Second}
 	distanceUnit        string
 	elevationUnit       string
 	legendEp            = vp.GetString("endpoints.legend")
 	units               = vp.GetString("units")
 	serverURL           = vp.GetString("serverURL")
+	retryDelay          = time.Duration(vp.GetInt("retryDelay"))
+	connAttempts        = vp.GetInt("connectionAttempts")
 	descriptionTemplate = template.Must(template.ParseFiles(path.Join(vp.GetString("basepath"), "./web/templates/description.tmpl")))
 )
 
@@ -46,7 +49,7 @@ func init() {
 
 func sendEmtpy(err error, w http.ResponseWriter) {
 	log.Println(err)
-
+	// Todo send img overlay with error
 	w.Header().Set("content-type", "application/vnd.google-earth.kml+xml")
 	kml.KML(kml.Document(kml.Name("Error"))).Write(w)
 }
@@ -93,19 +96,28 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	req.Header.Add("accept-language", "en;q=0.9")
 	req.Header.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36")
 
-	res, err := client.Do(req)
+	var res *http.Response
+	for c := 0; c < connAttempts; c++ {
+		res, err = client.Do(req)
+		if err == nil && res.StatusCode < 300 {
+			break
+		} else {
+			log.Printf(`Request error, attempt n.%d of %d`, c+1, connAttempts)
+			time.Sleep(retryDelay * time.Second)
+		}
+	}
 	if err != nil {
 		sendEmtpy(err, w)
+		return
+	}
+	if res.StatusCode > 299 {
+		sendEmtpy(fmt.Errorf(`Server responds with status code %d`, res.StatusCode), w)
 		return
 	}
 
 	// Store Wikiloc response body
 	rawBody, err := io.ReadAll(res.Body)
 	defer res.Body.Close()
-	if res.StatusCode > 299 {
-		sendEmtpy(fmt.Errorf("wikiloc replied with status code %d", res.StatusCode), w)
-		return
-	}
 	if err != nil {
 		sendEmtpy(err, w)
 		return
@@ -145,17 +157,28 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 			// Request the html page of the current trail
 			log.Printf("[%d] Fetching %s\n", i, trail.PrettyURL)
-			res, err = http.Get(fmt.Sprintf("https://www.wikiloc.com%s", trail.PrettyURL))
+
+			var res *http.Response
+			for c := 0; c < connAttempts; c++ {
+				res, err = client.Get(fmt.Sprintf("https://www.wikiloc.com%s", trail.PrettyURL))
+				if err == nil && res.StatusCode < 300 {
+					break
+				} else {
+					log.Printf(`[%d] Request error, attempt n.%d of %d`, i, c+1, connAttempts)
+					time.Sleep(retryDelay * time.Second)
+				}
+			}
 			if err != nil {
-				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
+				log.Println(fmt.Sprintf("[%d] Error, trail skipped | %s", i, err.Error()))
 				return
 			}
+			if res.StatusCode > 299 {
+				log.Println(fmt.Sprintf("[%d] Wikiloc responded with status code %d, trail skipped", i, res.StatusCode))
+				return
+			}
+
 			pageStrem, err := io.ReadAll(res.Body)
 			defer res.Body.Close()
-			if res.StatusCode > 299 {
-				log.Printf("[%d] wikiloc replied with status code %d. Trail skipped\n", i, res.StatusCode)
-				return
-			}
 			if err != nil {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
 				return

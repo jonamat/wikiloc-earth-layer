@@ -1,10 +1,6 @@
 # Icons diameter after conversion
 iconSidePx: 128
 
-# Default units from Wikiloc
-WLDistanceUnit: "mi"
-WLElevationUnit: "ft"
-
 # Measurement system to use in the updates. Use "metric" or "imperial"
 mesSys: "metric"
 
@@ -17,4 +13,10 @@ endpoints:
 # Google Chart base URL
 gChartBaseURL: "https://chart.apis.google.com/chart?chst=d_text_outline&chld=000000|20|l|ffffff|b|"
 
+# Destination page routed by navigating in the root 
 redirectPage: "https://jonamat.github.io/wikiloc-earth-layer/"
+
+# HTTP client settings
+connectionAttempts: 3
+connectionTimeout: 10 # sec
+retryDelay: 4 # sec
