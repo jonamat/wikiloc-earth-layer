@@ -2,9 +2,9 @@ FROM golang:1.17.0-bullseye AS builder
 WORKDIR /build
 
 # Define default build args
-ARG PROTOCOL=http
-ARG PORT=3000
-ARG HOST=localhost
+ARG PROTOCOL
+ARG PORT
+ARG HOST
 
 # Pass envs to generate static assets from builder
 ENV PROTOCOL=${PROTOCOL}
@@ -13,7 +13,7 @@ ENV HOST=${HOST}
 
 # Envs for build
 ENV CGO_ENABLED=0
-ENV GOOS=linux 
+ENV GOOS=linux
 ENV GOARCH=amd64
 
 # Import the codebase

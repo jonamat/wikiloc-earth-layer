@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  wikiloc-earth-layar:
+    image: jonamat/wikiloc-earth-layer
+    environment:
+      PROTOCOL: https
+      HOST: wikiloc-earth-layer.jonamat.cloud
+      PORT: 4000
+    ports:
+      - "4000:4000"
+    networks:
+      - caddy
+    labels:
+      caddy: wikiloc-earth-layer.jonamat.cloud
+      caddy.reverse_proxy: "{{upstreams 4000}}"
+
+networks:
+  caddy:
+    external: true

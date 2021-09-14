@@ -37,7 +37,7 @@ jobs:
           build-args: |
             HOST=wikiloc-earth-layer.jonamat.cloud
             PORT=80
-            PROTOCOL=http
+            PROTOCOL=https
           tags: |
             jonamat/wikiloc-earth-layer:latest
             jonamat/wikiloc-earth-layer:${{ steps.latesttag.outputs.tag }}
