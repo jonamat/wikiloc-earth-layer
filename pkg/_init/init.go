@@ -40,6 +40,9 @@ func init() {
 	if len(port) == 0 {
 		port = "80"
 	}
+	if len(servicePort) == 0 {
+		servicePort = port
+	}
 
 	// Check envs
 	if len(protocol) == 0 || len(host) == 0 {

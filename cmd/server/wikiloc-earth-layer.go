@@ -40,7 +40,7 @@ func main() {
 	router.GET(vp.GetString("endpoints.updates"), networklink.Compose)
 	router.GET(vp.GetString("endpoints.legend"), imgtext.GenerateImage)
 
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", vp.GetString("port")))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", vp.GetString("servicePort")))
 	if err != nil {
 		panic(err)
 	}

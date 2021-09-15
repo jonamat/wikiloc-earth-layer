@@ -1,6 +1,7 @@
 package index
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -10,5 +11,7 @@ import (
 var redirectPage = vp.GetString("redirectPage")
 
 func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	http.Redirect(w, r, redirectPage, http.StatusMovedPermanently)
+	// http.Redirect(w, r, redirectPage, http.StatusMovedPermanently)
+
+	fmt.Fprintf(w, "")
 }
