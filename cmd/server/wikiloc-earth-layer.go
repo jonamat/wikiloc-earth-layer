@@ -45,7 +45,7 @@ func main() {
 		panic(err)
 	}
 
-	log.Printf("Server started on port %s", vp.GetString("port"))
+	log.Printf("Server started on port %s", vp.GetString("servicePort"))
 
 	if err := http.Serve(listener, logger(router)); err != nil {
 		panic(err)

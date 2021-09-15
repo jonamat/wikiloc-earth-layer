@@ -6,7 +6,8 @@ services:
     environment:
       PROTOCOL: https
       HOST: wikiloc-earth-layer.jonamat.cloud
-      PORT: 4000
+      SERVICE_PORT: 4000
+      PORT: 80
     ports:
       - "4000:4000"
     networks:

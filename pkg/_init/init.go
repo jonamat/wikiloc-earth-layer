@@ -34,6 +34,7 @@ func init() {
 	protocol := os.Getenv("PROTOCOL")
 	host := os.Getenv("HOST")
 	port := os.Getenv("PORT")
+	servicePort := os.Getenv("SERVICE_PORT")
 
 	// Use 80 as fallback port
 	if len(port) == 0 {
@@ -68,6 +69,7 @@ func init() {
 	vp.Set("protocol", protocol)
 	vp.Set("host", host)
 	vp.Set("port", port)
+	vp.Set("servicePort", servicePort)
 	vp.Set("serverURL", serverURL)
 }
 
