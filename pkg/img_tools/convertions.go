@@ -18,10 +18,9 @@ func RawSVGToPNGImage(svg []byte, size int) (image.Image, error) {
 	icon.SetTarget(0, 0, float64(size), float64(size))
 
 	rgba := image.NewCMYK(image.Rect(0, 0, size, size))
-	scanner := rasterx.NewScannerGV(size, size, rgba, rgba.Bounds())
-	// TODO add precision to svg conversion
 
-	icon.Draw(rasterx.NewDasher(size, size, scanner), 1)
+	dasher := rasterx.NewDasher(size, size, rasterx.NewScannerGV(size, size, rgba, rgba.Bounds()))
+	icon.Draw(dasher, 1)
 
 	img := rgba.SubImage(image.Rect(0, 0, size, size))
 
