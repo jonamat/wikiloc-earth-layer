@@ -37,8 +37,8 @@ func main() {
 		kml.NetworkLink(
 			kml.Name("Wikiloc"),
 
-			kml.Visibility(true),
-			kml.Open(true),
+			kml.Visibility(false),
+			kml.Open(false),
 			kml.RefreshVisibility(true),
 			kml.FlyToView(false),
 
@@ -69,5 +69,5 @@ func main() {
 	zipWriter.Close()
 
 	log.Printf("Generated init KML with the following vars:\nPROTOCOL: %s\nHOST: %s\nPORT: %s", protocol, host, port)
-	log.Panicln("Compressed and saved in ./web/static/wikiloc-earth-layer.kmz")
+	log.Println("Compressed and saved in ./web/static/wikiloc-earth-layer.kmz")
 }
