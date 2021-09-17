@@ -41,7 +41,7 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifi
 # Generated web assets from builder
 COPY --from=builder /build/web/static ./web/static
 
-# Default envs
+# Defaults
 COPY ./.env ./.env
 COPY ./config.yml ./config.yml
 

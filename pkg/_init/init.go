@@ -14,17 +14,9 @@ func init() {
 	// Build paths based on GOENV
 	var basepath string
 
-	if os.Getenv("GOENV") == "production" {
-		bin, err := os.Executable()
-		if err != nil {
-			panic(err)
-		}
-		basepath = path.Dir(bin)
-	} else {
-		var err error
-		if basepath, err = os.Getwd(); err != nil {
-			panic(err)
-		}
+	var err error
+	if basepath, err = os.Getwd(); err != nil {
+		panic(err)
 	}
 
 	// Load envs
