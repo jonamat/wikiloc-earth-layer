@@ -1,11 +1,25 @@
 # Wikiloc Google Earth layer
 
 <p align="center">
-<img alt="GitHub Workflow Status (branch)" src="https://img.shields.io/github/workflow/status/jonamat/wikiloc-earth-layer/Docker/master" />
-<img alt="Uptime Robot status" src="https://img.shields.io/uptimerobot/status/m789148781-f6bfdeedd940b7d26ca79179" />
-<img alt="Uptime Robot ratio (7 days)" src="https://img.shields.io/uptimerobot/ratio/7/m789148781-f6bfdeedd940b7d26ca79179" />
-<img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/jonamat/wikiloc-earth-layer" />
-<a href="https://hub.docker.com/repository/docker/jonamat/wikiloc-earth-layer"><img alt="Docker Image Size (tag)" src="https://img.shields.io/docker/image-size/jonamat/wikiloc-earth-layer/latest" /></a>
+  <a href="https://github.com/jonamat/wikiloc-earth-layer/actions">
+    <img alt="GitHub Workflow Status (branch)" src="https://img.shields.io/github/workflow/status/jonamat/wikiloc-earth-layer/Docker/master" />
+  </a>
+
+  <a href="https://stats.uptimerobot.com/OXAqotNpjv">
+    <img alt="Uptime Robot status" src="https://img.shields.io/uptimerobot/status/m789148781-f6bfdeedd940b7d26ca79179" />
+  </a>
+
+  <a href="https://stats.uptimerobot.com/OXAqotNpjv">
+    <img alt="Uptime Robot ratio (7 days)" src="https://img.shields.io/uptimerobot/ratio/7/m789148781-f6bfdeedd940b7d26ca79179" />
+  </a>
+
+  <a href="https://github.com/jonamat/wikiloc-earth-layer/blob/master/go.mod">
+    <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/jonamat/wikiloc-earth-layer" />
+  </a>
+
+  <a href="https://hub.docker.com/repository/docker/jonamat/wikiloc-earth-layer">
+    <img alt="Docker Image Size (tag)" src="https://img.shields.io/docker/image-size/jonamat/wikiloc-earth-layer/latest" />
+  </a>
 </p>
 
 <br>
