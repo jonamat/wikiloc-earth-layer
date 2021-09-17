@@ -42,18 +42,18 @@ Tiny http server written in Go that fetch trails from wikiloc.com to compose KML
 ## Usage
 
 ### Use remotely
-- Download [this KML file](http://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kml) 
+- Download [this KMZ file](http://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kmZ) 
 - Open Google Earth Pro, go to file > open and select the downloaded wikiloc-earth-layer.kml
 - Navigate to the area you want to explore
 - Refresh the layer by right clicking on the layer > refresh
 - Enjoy your adventures!
 
-**This service is demonstrative. See "[Slow or unresponsive service using remote KML](#slow-or-unresponsive-service-using-remote-kml)" section if you experience lag or connection problems**
+**This service is demonstrative. See "[Slow or unresponsive service using remote KMZ](#slow-or-unresponsive-service-using-remote-kmz)" section if you experience lag or connection problems**
 
 ### Use locally
 - Download & extract the last release from [this page](https://github.com/jonamat/wikiloc-earth-layer/releases) according to the target platform.
 - Run the binary `./bin/wikiloc-earth-layer` (or .exe in windows)
-- Open Google Earth, go to file > open and select from the extracted folder ./web/static/wikiloc-earth-layer.kml
+- Open Google Earth, go to file > open and select from the extracted folder ./web/static/wikiloc-earth-layer.kmz
 - Navigate to the area you want to explore
 - Refresh the layer by right clicking on the layer > refresh
 - Enjoy your adventures!
@@ -62,7 +62,7 @@ If you want to compile the binary yourself, follow [these](#build-with-go) instr
 
 ### Use from the app (Android)
 - Download [this KML file](http://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kml) 
-- Open it directly or import in Google Earth: go to settings > projects > open and select the downloaded wikiloc-layer.kml
+- Open it directly or import in Google Earth: go to settings > projects > open and select the downloaded wikiloc-layer.kmz
 - Navigate to the area you want to explore
 - Refresh the layer by tapping on settings > project > layer > refresh
 - Enjoy your adventures!
@@ -72,7 +72,7 @@ If you want to compile the binary yourself, follow [these](#build-with-go) instr
 ### Refresh system is inconvenient to use
 I know, but it's necessary. Uploading the trails on camera movement has an even worse user experience. Unfortunately Google Earth doesn't support interactive applications as much. But maybe I found a workaround, I'm working on it. Encourage me supporting this project!
 
-### Slow or unresponsive service using remote KML
+### Slow or unresponsive service using remote KMZ
 The service is currently hosted in an unscaled machine that has the computing power of a coffee maker. Each request to the server must handle up to 25 calls to wikiloc, involving geometric calculations and encoding/decoding operations for each of them, so it's easy that the server blown down with multiple users connected. Furthermore, an excessive amount of requests to the Wikiloc servers could trigger their rate limiters.
 If you want a decent lag and zero problems, follow the [Use locally](#use-locally) instructions to host the service yourself.
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"archive/zip"
 	"fmt"
 	"log"
 	"os"
@@ -50,15 +51,23 @@ func main() {
 		),
 	)
 
-	file, err := os.Create("./web/static/wikiloc-earth-layer.kml")
+	archive, err := os.Create("./web/static/wikiloc-earth-layer.kmz")
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
+	defer archive.Close()
 
-	if err := kml.WriteIndent(file, "", "  "); err != nil {
+	zipWriter := zip.NewWriter(archive)
+
+	writer, err := zipWriter.Create("./wikiloc-earth-layer.kml")
+	if err != nil {
 		panic(err)
 	}
+	if err := kml.WriteIndent(writer, "", "  "); err != nil {
+		panic(err)
+	}
+	zipWriter.Close()
 
 	log.Printf("Generated init KML with the following vars:\nPROTOCOL: %s\nHOST: %s\nPORT: %s", protocol, host, port)
+	log.Panicln("Compressed and saved in ./web/static/wikiloc-earth-layer.kmz")
 }
