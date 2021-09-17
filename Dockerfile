@@ -2,9 +2,9 @@ FROM golang:1.17.0-bullseye AS builder
 WORKDIR /build
 
 # Define default build args
-ARG PROTOCOL
-ARG PORT
-ARG HOST
+ARG PROTOCOL=http
+ARG PORT=80
+ARG HOST=localhost
 
 # Pass envs to generate static assets from builder
 ENV PROTOCOL=${PROTOCOL}
