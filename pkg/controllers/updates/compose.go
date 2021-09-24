@@ -3,6 +3,7 @@ package networklink
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"image/color"
 	"io"
@@ -16,10 +17,10 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/jonamat/wikiloc-earth-layer/pkg/scraper"
 	"github.com/julienschmidt/httprouter"
 	vp "github.com/spf13/viper"
-	"github.com/twpayne/go-kml"
-	"github.com/wikiloc-layer/pkg/scraper"
+	"github.com/twpayne/go-kml/v2"
 )
 
 var (
@@ -70,6 +71,25 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if err != nil {
 		sendEmtpy(err, w)
 		return
+	}
+
+	// Get previous cookies to avoid trails re-fetch
+	prevTrailsRaw := params.Get("ids")
+	var prevTrails []uint64
+	if len(prevTrailsRaw) < 1 {
+		log.Printf("No loaded trails in the map")
+	} else {
+		tstr := strings.Split(prevTrailsRaw, "|")
+		for _, t := range tstr {
+			tint, err := strconv.ParseUint(t, 10, 64)
+			if err != nil {
+				log.Printf("Cannot convert trail ID %s into type uint64, error: %s", t, err.Error())
+			} else {
+				prevTrails = append(prevTrails, tint)
+			}
+		}
+
+		log.Printf("Trails already loaded: %d\n", len(prevTrails))
 	}
 
 	// Return empty response if view param is not provided
@@ -146,10 +166,26 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	var trailsCount = len(body.Trails)
-	var legendURL = fmt.Sprintf("%s%s?text=%s", serverURL, legendEp, url.QueryEscape(fmt.Sprintf("Trails found in this area: %d|Trails displayed: %d", body.Count, trailsCount)))
+	// Remove trails already in map
+	var trails []Trail
+	for _, t := range body.Trails {
+		isNew := true
+		for _, pt := range prevTrails {
+			if t.ID == pt {
+				isNew = false
+				break
+			}
+		}
 
-	log.Printf("Body parsed successfully. Found %d trails in his area. Fetched %d trails.\n", body.Count, len(body.Trails))
+		if isNew {
+			trails = append(trails, t)
+		}
+	}
+
+	var trailsCount = len(trails)
+	var legendURL = fmt.Sprintf("%s%s?text=%s", serverURL, legendEp, url.QueryEscape(fmt.Sprintf("Trails found in this area: %d|New trails: %d", body.Count, trailsCount)))
+
+	log.Printf("Body parsed successfully. Found %d trails in his area. New trails: %d.\n", body.Count, trailsCount)
 
 	/* -------------------------------------------------------------------------- */
 	/*                            Compose KML Documents                           */
@@ -157,12 +193,17 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	log.Println("Composing response KML file...")
 
+	// Extracted trails ids
+	var trailIDs []string
+
 	// Iterate over parsed Trails slice
 	var wg sync.WaitGroup
 	docsChan := make(chan kml.Element, trailsCount)
 	wg.Add(trailsCount)
 
-	for i, trail := range body.Trails {
+	for i, trail := range trails {
+		trailIDs = append(trailIDs, strconv.FormatUint(trail.ID, 10))
+
 		go func(trail Trail, i int, docsChan chan kml.Element) {
 			defer wg.Done()
 
@@ -246,6 +287,7 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
 				return
 			}
+			// todo bufio.Scanner: token too long
 			descr, err := io.ReadAll(&descrBuff)
 			if err != nil {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
@@ -263,8 +305,7 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				kml.Placemark(
 					kml.Name(trail.Name),
 					kml.Description(string(descr)),
-
-					kml.StyleURL("#point"),
+					kml.StyleURL("#trail"),
 					kml.Style(
 						kml.IconStyle(
 							kml.Scale(1.2),
@@ -273,6 +314,7 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 							),
 						),
 					),
+
 					kml.Point(
 						kml.Coordinates(
 							kml.Coordinate{Lon: trail.Lon, Lat: trail.Lat},
@@ -284,8 +326,7 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				kml.Placemark(
 					kml.Name(trail.Name),
 					kml.Description(string(descr)),
-
-					kml.StyleURL("#line"),
+					kml.StyleURL("#trail"),
 
 					kml.LineString(
 						kml.Tessellate(true),
@@ -311,49 +352,33 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	/*                             Compose Updates KML                            */
 	/* -------------------------------------------------------------------------- */
 
+	// Append new trails to trials cookie
+	cookie := strings.Join(trailIDs, "|") + "|" + prevTrailsRaw
+
 	kmlRes := kml.KML(
-		// Trails folder
-		kml.Folder(
-			append(
-				[]kml.Element{
+		kml.NetworkLinkControl(
+			kml.Cookie("ids="+cookie),
 
-					kml.Name("Trails"),
-					kml.Visibility(true),
-					kml.Open(true),
-
-					// Style definitions for the paths
-					kml.SharedStyle(
-						"line",
-						kml.LineStyle(
-							kml.Color(color.RGBA{255, 255, 255, 180}),
-							kml.ColorMode(kml.ColorModeRandom),
-							kml.Width(2.5),
-						),
-					),
-
-					// Style definitions for the icons
-					kml.SharedStyle(
-						"point",
-						kml.LabelStyle(
-							kml.Scale(0),
-						),
-					),
-
-					kml.ScreenOverlay(
-						kml.Name("Trail count overlay"),
-						kml.Visibility(true),
-						kml.Color(color.RGBA{255, 255, 255, 255}),
-						kml.Icon(
-							kml.Href(legendURL),
-						),
-						kml.OverlayXY(kml.Vec2{X: 0, Y: 0, XUnits: kml.UnitsFraction, YUnits: kml.UnitsFraction}),
-						kml.ScreenXY(kml.Vec2{X: 10, Y: 25, XUnits: kml.UnitsPixels, YUnits: kml.UnitsPixels}),
-					),
-				},
-
-				// Trails documents
-				docs...,
-			)...,
+			kml.Update(
+				// todo remove hc
+				kml.TargetHref("http://localhost:3000/api/v1/init"),
+				kml.Create(
+					&kml.CompoundElement{
+						StartElement: xml.StartElement{Name: xml.Name{Local: "Folder"}, Attr: []xml.Attr{{Name: xml.Name{Local: "targetId"}, Value: "trails"}}},
+						Children:     docs,
+					},
+				),
+				kml.Change(
+					&kml.CompoundElement{
+						StartElement: xml.StartElement{Name: xml.Name{Local: "ScreenOverlay"}, Attr: []xml.Attr{{Name: xml.Name{Local: "targetId"}, Value: "legend"}}},
+						Children: []kml.Element{
+							kml.Icon(
+								kml.Href(legendURL),
+							),
+						},
+					},
+				),
+			),
 		),
 	)
 

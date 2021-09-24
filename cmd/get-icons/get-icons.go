@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	_init "github.com/wikiloc-layer/pkg/_init"
-	imgtools "github.com/wikiloc-layer/pkg/img_tools"
+	_init "github.com/jonamat/wikiloc-earth-layer/pkg/_init"
+	imgtools "github.com/jonamat/wikiloc-earth-layer/pkg/img_tools"
 )
 
 const (

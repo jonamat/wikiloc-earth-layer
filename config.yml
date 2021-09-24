@@ -6,7 +6,8 @@ mesSys: "metric"
 
 # Router endpoints
 endpoints:
-  updates: "/api/v1/overlay"
+  init: "/api/v1/init"
+  updates: "/api/v1/updates"
   legend: "/api/v1/gen-img"
   static: "/static"
 

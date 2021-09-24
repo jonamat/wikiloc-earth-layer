@@ -6,12 +6,13 @@ import (
 	"net"
 	"net/http"
 
+	_init "github.com/jonamat/wikiloc-earth-layer/pkg/_init"
+	imgtext "github.com/jonamat/wikiloc-earth-layer/pkg/controllers/img_text"
+	"github.com/jonamat/wikiloc-earth-layer/pkg/controllers/index"
+	init_updates "github.com/jonamat/wikiloc-earth-layer/pkg/controllers/init"
+	networklink "github.com/jonamat/wikiloc-earth-layer/pkg/controllers/updates"
 	"github.com/julienschmidt/httprouter"
 	vp "github.com/spf13/viper"
-	_init "github.com/wikiloc-layer/pkg/_init"
-	imgtext "github.com/wikiloc-layer/pkg/controllers/img_text"
-	"github.com/wikiloc-layer/pkg/controllers/index"
-	networklink "github.com/wikiloc-layer/pkg/controllers/network_link"
 )
 
 type Middleware struct {
@@ -37,6 +38,7 @@ func main() {
 	router := httprouter.New()
 	router.ServeFiles("/static/*filepath", http.Dir("./web/static"))
 	router.GET("/", index.Index)
+	router.GET(vp.GetString("endpoints.init"), init_updates.Init_updates)
 	router.GET(vp.GetString("endpoints.updates"), networklink.Compose)
 	router.GET(vp.GetString("endpoints.legend"), imgtext.GenerateImage)
 
