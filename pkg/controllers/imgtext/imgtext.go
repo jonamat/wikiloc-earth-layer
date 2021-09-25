@@ -12,7 +12,7 @@ import (
 
 var gChartBaseURL = vp.GetString("gChartBaseURL")
 
-func GenerateImage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	params, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		log.Println(err)

@@ -8,17 +8,17 @@ import (
 	"sync"
 	"time"
 
-	_init "github.com/wikiloc-layer/pkg/_init"
-	imgtools "github.com/wikiloc-layer/pkg/img_tools"
+	_setup "github.com/jonamat/wikiloc-earth-layer/pkg/_setup"
+	imgtools "github.com/jonamat/wikiloc-earth-layer/pkg/img_tools"
 )
 
 const (
-	requests = 80
+	requests = 200
 	path     = "./web/static/icons/"
 )
 
 func init() {
-	_init.Init()
+	_setup.Init()
 }
 
 func main() {

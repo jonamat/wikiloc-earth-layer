@@ -1,4 +1,4 @@
-package _init
+package _setup
 
 import (
 	"bytes"

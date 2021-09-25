@@ -3,6 +3,7 @@ package networklink
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"image/color"
 	"io"
@@ -16,10 +17,10 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/jonamat/wikiloc-earth-layer/pkg/scraper"
 	"github.com/julienschmidt/httprouter"
 	vp "github.com/spf13/viper"
-	"github.com/twpayne/go-kml"
-	"github.com/wikiloc-layer/pkg/scraper"
+	"github.com/twpayne/go-kml/v2"
 )
 
 var (
@@ -27,7 +28,9 @@ var (
 	distanceUnit        string
 	elevationUnit       string
 	legendEp            = vp.GetString("endpoints.legend")
+	initEp              = vp.GetString("endpoints.init")
 	units               = vp.GetString("units")
+	trailsLimit         = vp.GetInt("trailsLimit")
 	serverURL           = vp.GetString("serverURL")
 	retryDelay          = time.Duration(vp.GetInt("retryDelay"))
 	connAttempts        = vp.GetInt("connectionAttempts")
@@ -65,11 +68,20 @@ func sendEmtpy(err error, w http.ResponseWriter) {
 	).Write(w)
 }
 
-func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	params, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
 		sendEmtpy(err, w)
 		return
+	}
+
+	// Get cookies to avoid re-fetch previous trails
+	prevTrailsRaw := params.Get("ids")
+	var prevTrails []string
+	if len(prevTrailsRaw) > 0 {
+		tstr := strings.Split(prevTrailsRaw, "|")
+		prevTrails = append(prevTrails, tstr...)
+		log.Printf("Trails already loaded: %d\n", len(prevTrails))
 	}
 
 	// Return empty response if view param is not provided
@@ -79,28 +91,28 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	// Get coordinates of Earth viewport
-	coordinates := strings.Split(view, ",")
-	if len(coordinates) < 4 {
+	// Get Google Earth viewport coordinates
+	coords := strings.Split(view, ",")
+	if len(coords) < 4 {
 		sendEmtpy(fmt.Errorf("incomplete coordinates list"), w)
 		return
 	}
 
-	log.Printf("Received viewport coordinates:\n\nlongitude_west: %s\nlatitude_south: %s\nlongitude_east: %s\nlatitude_north: %s\n\n", coordinates[0], coordinates[1], coordinates[2], coordinates[3])
+	log.Printf("Received viewport coordinates:\n\nlongitude_west: %s\nlatitude_south: %s\nlongitude_east: %s\nlatitude_north: %s\n\n", coords[0], coords[1], coords[2], coords[3])
 
-	// Create Wikiloc-like view coordinates
-	sw := fmt.Sprintf("%s,%s", coordinates[1], coordinates[0])
-	ne := fmt.Sprintf("%s,%s", coordinates[3], coordinates[2])
+	// Create Wikiloc-like viewport coordinates
+	sw := fmt.Sprintf("%s,%s", coords[1], coords[0])
+	ne := fmt.Sprintf("%s,%s", coords[3], coords[2])
 
 	// Compose wikiloc request URL
 	getTrailsURL := fmt.Sprintf("https://www.wikiloc.com/wikiloc/find.do?event=map&to=24&sw=%s&ne=%s", sw, ne)
 
-	log.Println("Making request to Wikiloc...")
-	log.Printf("Request URL: %s", getTrailsURL)
-
 	/* -------------------------------------------------------------------------- */
 	/*                         Retrieve data from Wikiloc                         */
 	/* -------------------------------------------------------------------------- */
+
+	log.Println("Making request to Wikiloc...")
+	log.Printf("Request URL: %s", getTrailsURL)
 
 	req, _ := http.NewRequest("GET", getTrailsURL, nil)
 	req.Header.Add("referer", getTrailsURL)
@@ -146,23 +158,46 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	var trailsCount = len(body.Trails)
-	var legendURL = fmt.Sprintf("%s%s?text=%s", serverURL, legendEp, url.QueryEscape(fmt.Sprintf("Trails found in this area: %d|Trails displayed: %d", body.Count, trailsCount)))
+	// Remove newTrails already loaded
+	var newTrails []Trail
+	for _, t := range body.Trails {
+		isNew := true
+		for _, id := range prevTrails {
+			ipt, err := strconv.ParseUint(id, 10, 64)
+			if err != nil {
+				log.Printf("Cannot convert ID '%s' in type uint64. Error: %s", ipt, err.Error())
+			}
+			if err != nil || t.ID == ipt {
+				isNew = false
+				break
+			}
+		}
 
-	log.Printf("Body parsed successfully. Found %d trails in his area. Fetched %d trails.\n", body.Count, len(body.Trails))
+		if isNew {
+			newTrails = append(newTrails, t)
+		}
+	}
+
+	var newTrailsCount = len(newTrails)
+	var legendURL = fmt.Sprintf("%s%s?text=%s", serverURL, legendEp, url.QueryEscape(fmt.Sprintf("Trails found in this area: %d|Currently loaded: %d|New trails: %d", body.Count, len(prevTrails)+newTrailsCount, newTrailsCount)))
+
+	log.Printf("Body parsed successfully. Found %d trails in his area. %d trails currently loaded. New trails: %d.\n", body.Count, len(prevTrails)+newTrailsCount, newTrailsCount)
 
 	/* -------------------------------------------------------------------------- */
 	/*                            Compose KML Documents                           */
 	/* -------------------------------------------------------------------------- */
 
-	log.Println("Composing response KML file...")
+	log.Println("Fetching geometries for each trail...")
+
+	var trailIDs []string
+	var wg sync.WaitGroup
+	docsChan := make(chan kml.Element, newTrailsCount)
+	wg.Add(newTrailsCount)
 
 	// Iterate over parsed Trails slice
-	var wg sync.WaitGroup
-	docsChan := make(chan kml.Element, trailsCount)
-	wg.Add(trailsCount)
+	for i, trail := range newTrails {
+		trailIDs = append(trailIDs, strconv.FormatUint(trail.ID, 10))
 
-	for i, trail := range body.Trails {
 		go func(trail Trail, i int, docsChan chan kml.Element) {
 			defer wg.Done()
 
@@ -188,7 +223,7 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				return
 			}
 
-			pageStrem, err := io.ReadAll(res.Body)
+			pageRaw, err := io.ReadAll(res.Body)
 			defer res.Body.Close()
 			if err != nil {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
@@ -197,8 +232,8 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 			log.Printf("[%d] Fetched page %s\n", i, trail.PrettyURL)
 
-			// Scrape path geometry from the received html code
-			html := string(pageStrem)
+			// Scrape path geometry from the received html
+			html := string(pageRaw)
 			pathGeometry, err := scraper.GetGeometry(&html)
 			if err != nil {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
@@ -211,7 +246,7 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				kmlCoords = append(kmlCoords, kml.Coordinate{Lon: t.Lon, Lat: t.Lat, Alt: 0})
 			}
 
-			// Parse & convert units from imperial to metric
+			// Parse & convert units from imperial (native) to user choosen one
 			distance, err := strconv.ParseFloat(trail.Distance, 64)
 			if err != nil {
 				distance = 0.0
@@ -246,6 +281,7 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
 				return
 			}
+			// TODO bufio.Scanner: token too long - error with long pages (description?)
 			descr, err := io.ReadAll(&descrBuff)
 			if err != nil {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
@@ -254,48 +290,51 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 			// Create the URL for the trail icon
 			icon := fmt.Sprintf("%s/static/icons/%d.png", serverURL, trail.TrailTypeImgNum)
+			strID := strconv.FormatUint(trail.ID, 10)
 
-			// Create a KML <Document> element for the trail and append it to docs slice
-			docsChan <- kml.Document(
-				kml.Name(trail.Name),
-
-				// Placemark for the icon (starting point)
-				kml.Placemark(
+			// Create a KML <Document> element for the trail and send it to docs channel
+			docsChan <- &kml.CompoundElement{
+				StartElement: xml.StartElement{Name: xml.Name{Local: "Document"}, Attr: []xml.Attr{{Name: xml.Name{Local: "id"}, Value: strID}}},
+				Children: []kml.Element{
 					kml.Name(trail.Name),
-					kml.Description(string(descr)),
 
-					kml.StyleURL("#point"),
-					kml.Style(
-						kml.IconStyle(
-							kml.Scale(1.2),
-							kml.Icon(
-								kml.Href(icon),
+					// Placemark for the icon (starting point)
+					kml.Placemark(
+						kml.Name(trail.Name),
+						kml.Description(string(descr)),
+						kml.StyleURL("#trail"),
+						kml.Style(
+							kml.IconStyle(
+								kml.Scale(1.2),
+								kml.Icon(
+									kml.Href(icon),
+								),
+							),
+						),
+
+						kml.Point(
+							kml.Coordinates(
+								kml.Coordinate{Lon: trail.Lon, Lat: trail.Lat},
 							),
 						),
 					),
-					kml.Point(
-						kml.Coordinates(
-							kml.Coordinate{Lon: trail.Lon, Lat: trail.Lat},
+
+					// Placemark for the path
+					kml.Placemark(
+						kml.Name(trail.Name),
+						kml.Description(string(descr)),
+						kml.StyleURL("#trail"),
+
+						kml.LineString(
+							kml.Tessellate(true),
+							kml.AltitudeMode(kml.AltitudeModeClampToGround),
+							kml.Coordinates(
+								kmlCoords...,
+							),
 						),
 					),
-				),
-
-				// Placemark for the path
-				kml.Placemark(
-					kml.Name(trail.Name),
-					kml.Description(string(descr)),
-
-					kml.StyleURL("#line"),
-
-					kml.LineString(
-						kml.Tessellate(true),
-						kml.AltitudeMode(kml.AltitudeModeClampToGround),
-						kml.Coordinates(
-							kmlCoords...,
-						),
-					),
-				),
-			)
+				},
+			}
 		}(trail, i, docsChan)
 	}
 
@@ -307,53 +346,65 @@ func Compose(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		docs = append(docs, doc)
 	}
 
+	// Remove trails over the limit
+	loadedTrailsIds := append(trailIDs, prevTrails...)
+
+	var idsToRemove []string
+	if len(loadedTrailsIds) > trailsLimit {
+		log.Println("Trail limit reached. Next uptate will remove oldest trails")
+
+		ex := len(loadedTrailsIds) - trailsLimit
+		idsToRemove = loadedTrailsIds[:ex-1]
+		loadedTrailsIds = loadedTrailsIds[ex:]
+	}
+
+	var deletes []kml.Element
+	for _, id := range idsToRemove {
+		deletes = append(deletes,
+			kml.Delete(
+				&kml.CompoundElement{
+					StartElement: xml.StartElement{Name: xml.Name{Local: "Document"}, Attr: []xml.Attr{{Name: xml.Name{Local: "targetId"}, Value: id}}},
+					Children:     []kml.Element{},
+				},
+			),
+		)
+	}
+
+	// Append new trails to trials cookie
+	cookie := fmt.Sprintf("ids=%s", strings.Join(loadedTrailsIds, "|"))
+
 	/* -------------------------------------------------------------------------- */
 	/*                             Compose Updates KML                            */
 	/* -------------------------------------------------------------------------- */
 
 	kmlRes := kml.KML(
-		// Trails folder
-		kml.Folder(
-			append(
-				[]kml.Element{
+		kml.NetworkLinkControl(
+			kml.Cookie(cookie),
 
-					kml.Name("Trails"),
-					kml.Visibility(true),
-					kml.Open(true),
-
-					// Style definitions for the paths
-					kml.SharedStyle(
-						"line",
-						kml.LineStyle(
-							kml.Color(color.RGBA{255, 255, 255, 180}),
-							kml.ColorMode(kml.ColorModeRandom),
-							kml.Width(2.5),
+			kml.Update(
+				append(
+					[]kml.Element{
+						kml.TargetHref(serverURL + initEp),
+						kml.Create(
+							&kml.CompoundElement{
+								StartElement: xml.StartElement{Name: xml.Name{Local: "Folder"}, Attr: []xml.Attr{{Name: xml.Name{Local: "targetId"}, Value: "trails"}}},
+								Children:     docs,
+							},
 						),
-					),
-
-					// Style definitions for the icons
-					kml.SharedStyle(
-						"point",
-						kml.LabelStyle(
-							kml.Scale(0),
+						kml.Change(
+							&kml.CompoundElement{
+								StartElement: xml.StartElement{Name: xml.Name{Local: "ScreenOverlay"}, Attr: []xml.Attr{{Name: xml.Name{Local: "targetId"}, Value: "legend"}}},
+								Children: []kml.Element{
+									kml.Icon(
+										kml.Href(legendURL),
+									),
+								},
+							},
 						),
-					),
-
-					kml.ScreenOverlay(
-						kml.Name("Trail count overlay"),
-						kml.Visibility(true),
-						kml.Color(color.RGBA{255, 255, 255, 255}),
-						kml.Icon(
-							kml.Href(legendURL),
-						),
-						kml.OverlayXY(kml.Vec2{X: 0, Y: 0, XUnits: kml.UnitsFraction, YUnits: kml.UnitsFraction}),
-						kml.ScreenXY(kml.Vec2{X: 10, Y: 25, XUnits: kml.UnitsPixels, YUnits: kml.UnitsPixels}),
-					),
-				},
-
-				// Trails documents
-				docs...,
-			)...,
+					},
+					deletes...,
+				)...,
+			),
 		),
 	)
 
