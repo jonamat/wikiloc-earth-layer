@@ -75,31 +75,12 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-<<<<<<< HEAD:pkg/controllers/updates/handler.go
 	// Get cookies to avoid re-fetch previous trails
 	prevTrailsRaw := params.Get("ids")
 	var prevTrails []string
 	if len(prevTrailsRaw) > 0 {
 		tstr := strings.Split(prevTrailsRaw, "|")
 		prevTrails = append(prevTrails, tstr...)
-=======
-	// Get previous cookies to avoid trails re-fetch
-	prevTrailsRaw := params.Get("ids")
-	var prevTrails []uint64
-	if len(prevTrailsRaw) < 1 {
-		log.Printf("No loaded trails in the map")
-	} else {
-		tstr := strings.Split(prevTrailsRaw, "|")
-		for _, t := range tstr {
-			tint, err := strconv.ParseUint(t, 10, 64)
-			if err != nil {
-				log.Printf("Cannot convert trail ID %s into type uint64, error: %s", t, err.Error())
-			} else {
-				prevTrails = append(prevTrails, tint)
-			}
-		}
-
->>>>>>> origin/feature/keep-prev-trails:pkg/controllers/updates/compose.go
 		log.Printf("Trails already loaded: %d\n", len(prevTrails))
 	}
 
@@ -177,7 +158,6 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-<<<<<<< HEAD:pkg/controllers/updates/handler.go
 	// Remove newTrails already loaded
 	var newTrails []Trail
 	for _, t := range body.Trails {
@@ -188,21 +168,12 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				log.Printf("Cannot convert ID '%s' in type uint64. Error: %s", ipt, err.Error())
 			}
 			if err != nil || t.ID == ipt {
-=======
-	// Remove trails already in map
-	var trails []Trail
-	for _, t := range body.Trails {
-		isNew := true
-		for _, pt := range prevTrails {
-			if t.ID == pt {
->>>>>>> origin/feature/keep-prev-trails:pkg/controllers/updates/compose.go
 				isNew = false
 				break
 			}
 		}
 
 		if isNew {
-<<<<<<< HEAD:pkg/controllers/updates/handler.go
 			newTrails = append(newTrails, t)
 		}
 	}
@@ -211,16 +182,6 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var legendURL = fmt.Sprintf("%s%s?text=%s", serverURL, legendEp, url.QueryEscape(fmt.Sprintf("Trails found in this area: %d|Currently loaded: %d|New trails: %d", body.Count, len(prevTrails)+newTrailsCount, newTrailsCount)))
 
 	log.Printf("Body parsed successfully. Found %d trails in his area. %d trails currently loaded. New trails: %d.\n", body.Count, len(prevTrails)+newTrailsCount, newTrailsCount)
-=======
-			trails = append(trails, t)
-		}
-	}
-
-	var trailsCount = len(trails)
-	var legendURL = fmt.Sprintf("%s%s?text=%s", serverURL, legendEp, url.QueryEscape(fmt.Sprintf("Trails found in this area: %d|New trails: %d", body.Count, trailsCount)))
-
-	log.Printf("Body parsed successfully. Found %d trails in his area. New trails: %d.\n", body.Count, trailsCount)
->>>>>>> origin/feature/keep-prev-trails:pkg/controllers/updates/compose.go
 
 	/* -------------------------------------------------------------------------- */
 	/*                            Compose KML Documents                           */
@@ -228,14 +189,7 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	log.Println("Fetching geometries for each trail...")
 
-<<<<<<< HEAD:pkg/controllers/updates/handler.go
 	var trailIDs []string
-=======
-	// Extracted trails ids
-	var trailIDs []string
-
-	// Iterate over parsed Trails slice
->>>>>>> origin/feature/keep-prev-trails:pkg/controllers/updates/compose.go
 	var wg sync.WaitGroup
 	docsChan := make(chan kml.Element, newTrailsCount)
 	wg.Add(newTrailsCount)
@@ -244,12 +198,6 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	for i, trail := range newTrails {
 		trailIDs = append(trailIDs, strconv.FormatUint(trail.ID, 10))
 
-<<<<<<< HEAD:pkg/controllers/updates/handler.go
-=======
-	for i, trail := range trails {
-		trailIDs = append(trailIDs, strconv.FormatUint(trail.ID, 10))
-
->>>>>>> origin/feature/keep-prev-trails:pkg/controllers/updates/compose.go
 		go func(trail Trail, i int, docsChan chan kml.Element) {
 			defer wg.Done()
 
@@ -333,11 +281,7 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
 				return
 			}
-<<<<<<< HEAD:pkg/controllers/updates/handler.go
 			// TODO bufio.Scanner: token too long - error with long pages (description?)
-=======
-			// todo bufio.Scanner: token too long
->>>>>>> origin/feature/keep-prev-trails:pkg/controllers/updates/compose.go
 			descr, err := io.ReadAll(&descrBuff)
 			if err != nil {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
@@ -353,7 +297,6 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				StartElement: xml.StartElement{Name: xml.Name{Local: "Document"}, Attr: []xml.Attr{{Name: xml.Name{Local: "id"}, Value: strID}}},
 				Children: []kml.Element{
 					kml.Name(trail.Name),
-<<<<<<< HEAD:pkg/controllers/updates/handler.go
 
 					// Placemark for the icon (starting point)
 					kml.Placemark(
@@ -373,26 +316,9 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 							kml.Coordinates(
 								kml.Coordinate{Lon: trail.Lon, Lat: trail.Lat},
 							),
-=======
-					kml.Description(string(descr)),
-					kml.StyleURL("#trail"),
-					kml.Style(
-						kml.IconStyle(
-							kml.Scale(1.2),
-							kml.Icon(
-								kml.Href(icon),
-							),
 						),
 					),
 
-					kml.Point(
-						kml.Coordinates(
-							kml.Coordinate{Lon: trail.Lon, Lat: trail.Lat},
->>>>>>> origin/feature/keep-prev-trails:pkg/controllers/updates/compose.go
-						),
-					),
-
-<<<<<<< HEAD:pkg/controllers/updates/handler.go
 					// Placemark for the path
 					kml.Placemark(
 						kml.Name(trail.Name),
@@ -405,19 +331,6 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 							kml.Coordinates(
 								kmlCoords...,
 							),
-=======
-				// Placemark for the path
-				kml.Placemark(
-					kml.Name(trail.Name),
-					kml.Description(string(descr)),
-					kml.StyleURL("#trail"),
-
-					kml.LineString(
-						kml.Tessellate(true),
-						kml.AltitudeMode(kml.AltitudeModeClampToGround),
-						kml.Coordinates(
-							kmlCoords...,
->>>>>>> origin/feature/keep-prev-trails:pkg/controllers/updates/compose.go
 						),
 					),
 				},
@@ -464,7 +377,6 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	/*                             Compose Updates KML                            */
 	/* -------------------------------------------------------------------------- */
 
-<<<<<<< HEAD:pkg/controllers/updates/handler.go
 	kmlRes := kml.KML(
 		kml.NetworkLinkControl(
 			kml.Cookie(cookie),
@@ -492,34 +404,6 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 					},
 					deletes...,
 				)...,
-=======
-	// Append new trails to trials cookie
-	cookie := strings.Join(trailIDs, "|") + "|" + prevTrailsRaw
-
-	kmlRes := kml.KML(
-		kml.NetworkLinkControl(
-			kml.Cookie("ids="+cookie),
-
-			kml.Update(
-				// todo remove hc
-				kml.TargetHref("http://localhost:3000/api/v1/init"),
-				kml.Create(
-					&kml.CompoundElement{
-						StartElement: xml.StartElement{Name: xml.Name{Local: "Folder"}, Attr: []xml.Attr{{Name: xml.Name{Local: "targetId"}, Value: "trails"}}},
-						Children:     docs,
-					},
-				),
-				kml.Change(
-					&kml.CompoundElement{
-						StartElement: xml.StartElement{Name: xml.Name{Local: "ScreenOverlay"}, Attr: []xml.Attr{{Name: xml.Name{Local: "targetId"}, Value: "legend"}}},
-						Children: []kml.Element{
-							kml.Icon(
-								kml.Href(legendURL),
-							),
-						},
-					},
-				),
->>>>>>> origin/feature/keep-prev-trails:pkg/controllers/updates/compose.go
 			),
 		),
 	)
