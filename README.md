@@ -56,14 +56,14 @@ Tiny http server written in Go that fetch trails from wikiloc.com to compose KML
 ## Usage
 
 ### Use demo server from Google Earth online
-- Download [this KMZ file](http://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kmz) 
+- Download [this KMZ file](https://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kmz) 
 - Go to the [Google Earth](https://earth.google.com/) web client
 - Click Projects > Open > Import KML file from computer and select the downloaded `wikiloc-earth-layer.kmz`
 - Navigate to the area you want to explore and wait for the trails
 - Enjoy your adventures!
 
 ### Use demo server from Google Earth Pro
-- Download [this KMZ file](http://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kmz) 
+- Download [this KMZ file](https://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kmz) 
 - Open Google Earth Pro, click File > Open and select the downloaded `wikiloc-earth-layer.kmz`
 - Navigate to the area you want to explore and wait for the trails
 - Enjoy your adventures!
@@ -79,7 +79,7 @@ You can't. Download Google Earth Pro.
 - Enjoy your adventures!
 
 ### Use demo server from the app
-- Download [this KML file](http://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kmz) 
+- Download [this KML file](https://wikiloc-earth-layer.jonamat.cloud/static/wikiloc-earth-layer.kmz) 
 - Open it directly or import in Google Earth: tap Settings > Projects > Open > Import KML file from computer and select the downloaded `wikiloc-earth-layer.kmz`
 - Navigate to the area you want to explore
 - Refresh the layer by tapping on settings > project > layer > refresh
