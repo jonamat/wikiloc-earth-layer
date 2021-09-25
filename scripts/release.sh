@@ -22,14 +22,9 @@ GOOS=linux GOARCH=amd64 go build -o ./release/${PREFIX}linux-amd64/wikiloc-earth
 GOOS=linux GOARCH=arm64 go build -o ./release/${PREFIX}linux-arm64/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go
 
 # Copy assets
-cp -R ./web ./release/${PREFIX}windows-amd64/web/
-cp -R ./web ./release/${PREFIX}linux-amd64/web/
-cp -R ./web ./release/${PREFIX}linux-arm64/web/
-
-# Copy dotfile
-cp -R ./.env ./release/${PREFIX}windows-amd64/.env
-cp -R ./.env ./release/${PREFIX}linux-amd64/.env
-cp -R ./.env ./release/${PREFIX}linux-arm64/.env
+cp -R ./web ./.env ./config.yml ./release/${PREFIX}windows-amd64/
+cp -R ./web ./.env ./config.yml ./release/${PREFIX}linux-amd64/
+cp -R ./web ./.env ./config.yml ./release/${PREFIX}linux-arm64/
 
 # Zip folders
 cd ./release/
