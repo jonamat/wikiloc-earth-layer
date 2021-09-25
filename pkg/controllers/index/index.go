@@ -9,6 +9,6 @@ import (
 
 var redirectPage = vp.GetString("redirectPage")
 
-func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	http.Redirect(w, r, redirectPage, http.StatusMovedPermanently)
 }

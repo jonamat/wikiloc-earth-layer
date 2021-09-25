@@ -4,9 +4,16 @@ iconSidePx: 128
 # Measurement system to use in the updates. Use "metric" or "imperial"
 mesSys: "metric"
 
+# Limit for the trails loaded in Google Earth (consider +24 new trails)
+trailsLimit: 100
+
+# Delay after stop
+stopDelay: 2.0 # sec
+
 # Router endpoints
 endpoints:
-  updates: "/api/v1/overlay"
+  init: "/api/v1/init"
+  updates: "/api/v1/updates"
   legend: "/api/v1/gen-img"
   static: "/static"
 

@@ -1,0 +1,91 @@
+linters:
+  enable:
+  - asciicheck
+  - bodyclose
+  - cyclop
+  - deadcode
+  - depguard
+  - dogsled
+  - dupl
+  - durationcheck
+  - errcheck
+  - errname
+  - errorlint
+  - exhaustive
+  - exportloopref
+  - forbidigo
+  - forcetypeassert
+  - gochecknoinits
+  - gocognit
+  - goconst
+  - gocritic
+  - gocyclo
+  - godot
+  - goerr113
+  - gofmt
+  - gofumpt
+  - goheader
+  - goimports
+  - gomoddirectives
+  - gomodguard
+  - goprintffuncname
+  - gosec
+  - gosimple
+  - govet
+  - ifshort
+  - importas
+  - ineffassign
+  - makezero
+  - misspell
+  - nakedret
+  - nestif
+  - nilerr
+  - noctx
+  - nolintlint
+  - prealloc
+  - predeclared
+  - promlinter
+  - revive
+  - rowserrcheck
+  - sqlclosecheck
+  - staticcheck
+  - structcheck
+  - stylecheck
+  - tagliatelle
+  - thelper
+  - tparallel
+  - typecheck
+  - unconvert
+  - unparam
+  - unused
+  - varcheck
+  - wastedassign
+  - whitespace
+  disable:
+  - exhaustivestruct
+  - funlen
+  - gci # FIXME enable
+  - gochecknoglobals
+  - godox
+  - gomnd
+  - lll
+  - nlreturn
+  - paralleltest
+  - testpackage
+  - wrapcheck
+  - wsl
+
+linters-settings:
+  gofumpt:
+    local-prefixes: github.com/twpayne/go-kml
+
+issues:
+  exclude-rules:
+  - linters:
+    - dupl
+    - scopelint
+    path: "_test\\.go"
+  - linters:
+    - forbidigo
+    - gosec
+    path: "internal/"

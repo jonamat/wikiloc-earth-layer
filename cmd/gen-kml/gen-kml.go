@@ -6,18 +6,18 @@ import (
 	"log"
 	"os"
 
+	_setup "github.com/jonamat/wikiloc-earth-layer/pkg/_setup"
 	vp "github.com/spf13/viper"
-	"github.com/twpayne/go-kml"
-	_init "github.com/wikiloc-layer/pkg/_init"
+	"github.com/twpayne/go-kml/v2"
 )
 
 func init() {
 	// Load configuration and set viper singleton
-	_init.Init()
+	_setup.Init()
 }
 
 func main() {
-	overlayEndpoint := vp.GetString("endpoints.updates")
+	initEndpoint := vp.GetString("endpoints.init")
 	protocol := vp.GetString("protocol")
 	host := vp.GetString("host")
 	port := vp.GetString("port")
@@ -28,16 +28,17 @@ func main() {
 
 	var url string
 	if port != "80" || len(port) == 0 {
-		url = fmt.Sprintf("%s://%s:%s%s", protocol, host, port, overlayEndpoint)
+		url = fmt.Sprintf("%s://%s:%s%s", protocol, host, port, initEndpoint)
 	} else {
-		url = fmt.Sprintf("%s://%s%s", protocol, host, overlayEndpoint)
+		url = fmt.Sprintf("%s://%s%s", protocol, host, initEndpoint)
 	}
 
 	kml := kml.KML(
+		// First network link (will be replaced by networklinkcontrol)
 		kml.NetworkLink(
 			kml.Name("Wikiloc"),
 
-			kml.Visibility(false),
+			kml.Visibility(true),
 			kml.Open(false),
 			kml.RefreshVisibility(true),
 			kml.FlyToView(false),
@@ -46,7 +47,7 @@ func main() {
 				kml.Href(url),
 				kml.ViewRefreshMode(kml.ViewRefreshModeOnRequest),
 				kml.ViewRefreshTime(0),
-				kml.ViewFormat("view=[bboxWest],[bboxSouth],[bboxEast],[bboxNorth]"),
+				kml.ViewFormat(""),
 			),
 		),
 	)
@@ -63,6 +64,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// file, _ := os.Create("./web/static/wikiloc-earth-layer.kml")
+	// defer file.Close()
+
 	if err := kml.WriteIndent(writer, "", "  "); err != nil {
 		panic(err)
 	}
