@@ -1,7 +1,7 @@
 VERSION = ${shell git describe --tag}
 
 run:
-	go run ./cmd/server/wikiloc-earth-layer.go
+	go run ./cmd/server/wikiloc-earth-layer.go cmd/server/middlewares.go 
 
 serve:
 	./bin/wikiloc-earth-layer

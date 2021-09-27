@@ -15,19 +15,6 @@ import (
 	vp "github.com/spf13/viper"
 )
 
-type Middleware struct {
-	next http.Handler
-}
-
-func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Incoming request. Method: %s. URI: %s", r.Method, r.RequestURI)
-	m.next.ServeHTTP(w, r)
-}
-
-func logger(next http.Handler) *Middleware {
-	return &Middleware{next: next}
-}
-
 func init() {
 	// Load configuration and set viper singleton
 	_setup.Init()
@@ -49,8 +36,7 @@ func main() {
 
 	log.Printf("Server started on port %s", vp.GetString("servicePort"))
 
-	if err := http.Serve(listener, logger(router)); err != nil {
+	if err := http.Serve(listener, logger(webClientHeaders(router))); err != nil {
 		panic(err)
 	}
-
 }
