@@ -6,15 +6,12 @@ services:
     environment:
       PROTOCOL: https
       HOST: wikiloc-earth-layer.jonamat.cloud
-      SERVICE_PORT: 4000
       PORT: 80
-    ports:
-      - "4000:4000"
     networks:
       - caddy
     labels:
       caddy: wikiloc-earth-layer.jonamat.cloud
-      caddy.reverse_proxy: "{{upstreams 4000}}"
+      caddy.reverse_proxy: "{{upstreams 80}}"
 
 networks:
   caddy:

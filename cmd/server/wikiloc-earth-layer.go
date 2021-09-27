@@ -29,12 +29,12 @@ func main() {
 	router.GET(vp.GetString("endpoints.updates"), updates.Handle)
 	router.GET(vp.GetString("endpoints.legend"), imgtext.Handle)
 
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", vp.GetString("servicePort")))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", vp.GetString("port")))
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("Server started on port %s", vp.GetString("servicePort"))
+	log.Printf("Server started on port %s", vp.GetString("port"))
 
 	if err := http.Serve(listener, logger(webClientHeaders(router))); err != nil {
 		panic(err)

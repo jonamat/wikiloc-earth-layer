@@ -11,9 +11,7 @@ import (
 )
 
 func init() {
-	// Build paths based on GOENV
 	var basepath string
-
 	var err error
 	if basepath, err = os.Getwd(); err != nil {
 		panic(err)
@@ -26,14 +24,10 @@ func init() {
 	protocol := os.Getenv("PROTOCOL")
 	host := os.Getenv("HOST")
 	port := os.Getenv("PORT")
-	servicePort := os.Getenv("SERVICE_PORT")
 
 	// Use 80 as fallback port
 	if len(port) == 0 {
 		port = "80"
-	}
-	if len(servicePort) == 0 {
-		servicePort = port
 	}
 
 	// Check envs
@@ -64,7 +58,6 @@ func init() {
 	vp.Set("protocol", protocol)
 	vp.Set("host", host)
 	vp.Set("port", port)
-	vp.Set("servicePort", servicePort)
 	vp.Set("serverURL", serverURL)
 }
 
