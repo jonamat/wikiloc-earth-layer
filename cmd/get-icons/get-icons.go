@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	requests = 200
+	requests = 150
 	path     = "./web/static/icons/"
 )
 
