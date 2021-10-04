@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <NetworkLink>
+    <name>Wikiloc</name>
+    <visibility>1</visibility>
+    <open>0</open>
+    <refreshVisibility>1</refreshVisibility>
+    <flyToView>0</flyToView>
+    <Link>
+      <href>http://localhost:3000/api/v1/init</href>
+      <viewRefreshMode>onRequest</viewRefreshMode>
+      <viewRefreshTime>0</viewRefreshTime>
+      <viewFormat></viewFormat>
+    </Link>
+  </NetworkLink>
+</kml>
