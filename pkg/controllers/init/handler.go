@@ -18,12 +18,12 @@ var (
 	serverURL       = vp.GetString("serverURL")
 	updatesEndpoint = vp.GetString("endpoints.updates")
 	legendEndpoint  = vp.GetString("endpoints.legend")
+
+	updatesURL = serverURL + updatesEndpoint
+	legendURL  = fmt.Sprintf("%s%s?text=%s", serverURL, legendEndpoint, url.QueryEscape("Loading..."))
 )
 
 func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var legendURL = fmt.Sprintf("%s%s?text=%s", serverURL, legendEndpoint, url.QueryEscape("Loading..."))
-	var updatesURL = serverURL + updatesEndpoint
-
 	k := kml.KML(
 		kml.Folder(
 			kml.Name("Wikiloc"),
@@ -83,6 +83,7 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			),
 		),
 	)
+
 	w.Header().Set("content-type", "application/vnd.google-earth.kml+xml")
 	if err := k.WriteIndent(w, "", "  "); err != nil {
 		log.Println(err)
