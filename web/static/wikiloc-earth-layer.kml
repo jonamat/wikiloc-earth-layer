@@ -6,6 +6,16 @@
     <open>0</open>
     <refreshVisibility>1</refreshVisibility>
     <flyToView>0</flyToView>
+    <styleUrl>favicon</styleUrl>
+    <Style id="favicon">
+      <ListStyle>
+        <listItemType>check</listItemType>
+        <ItemIcon>
+          <state>open closed error fetching0 fetching1 fetching2</state>
+          <href>https://sc.wklcdn.com/favicon.ico?v=3.0</href>
+        </ItemIcon>
+      </ListStyle>
+    </Style>
     <Link>
       <href>http://localhost:3000/api/v1/init</href>
       <viewRefreshMode>onRequest</viewRefreshMode>

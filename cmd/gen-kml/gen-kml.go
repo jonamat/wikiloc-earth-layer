@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"encoding/xml"
 	"fmt"
 	"log"
 	"os"
@@ -42,6 +43,21 @@ func main() {
 			kml.Open(false),
 			kml.RefreshVisibility(true),
 			kml.FlyToView(false),
+
+			kml.StyleURL("favicon"),
+
+			kml.SharedStyle("favicon",
+				kml.ListStyle(
+					kml.ListItemType("check"),
+					kml.ItemIcon(
+						&kml.SimpleElement{
+							StartElement: xml.StartElement{Name: xml.Name{Local: "state"}},
+							Value:        "open closed error fetching0 fetching1 fetching2",
+						},
+						kml.Href("https://sc.wklcdn.com/favicon.ico?v=3.0"),
+					),
+				),
+			),
 
 			kml.Link(
 				kml.Href(url),
