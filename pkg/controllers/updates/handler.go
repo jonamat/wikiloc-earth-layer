@@ -1,4 +1,4 @@
-package networklink
+package updates
 
 import (
 	"bytes"
@@ -223,6 +223,7 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				return
 			}
 
+			// TODO bufio.Scanner: token too long - error with long pages (description?)
 			pageRaw, err := io.ReadAll(res.Body)
 			defer res.Body.Close()
 			if err != nil {
@@ -238,6 +239,12 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			if err != nil {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
 				return
+			}
+
+			/** Author description of the path */
+			pathDescr, err := scraper.GetDescription(&html)
+			if err != nil {
+				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
 			}
 
 			// Create a slice of KML <coordinate> elements from the scraped geometry
@@ -265,15 +272,16 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 			// Compose the description viewport from template
 			descrData := &Description{
-				Type:           trail.TrailTypeText,
-				Rank:           trail.TrailRank,
-				Distance:       fmt.Sprintf("%.2f", distance),
-				Elevation:      fmt.Sprintf("%.2f", elevation),
-				Author:         trail.Author,
-				Link:           fmt.Sprintf("https://www.wikiloc.com%s", trail.PrettyURL),
-				Thumbnails:     trail.Thumbnails,
-				DistanceUnits:  distanceUnit,
-				ElevationUnits: elevationUnit,
+				Type:            trail.TrailTypeText,
+				Rank:            trail.TrailRank,
+				Distance:        fmt.Sprintf("%.2f", distance),
+				Elevation:       fmt.Sprintf("%.2f", elevation),
+				Author:          trail.Author,
+				Link:            fmt.Sprintf("https://www.wikiloc.com%s", trail.PrettyURL),
+				Thumbnails:      trail.Thumbnails,
+				DistanceUnits:   distanceUnit,
+				PathDescription: pathDescr,
+				ElevationUnits:  elevationUnit,
 			}
 
 			var descrBuff bytes.Buffer
@@ -281,7 +289,6 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
 				return
 			}
-			// TODO bufio.Scanner: token too long - error with long pages (description?)
 			descr, err := io.ReadAll(&descrBuff)
 			if err != nil {
 				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))

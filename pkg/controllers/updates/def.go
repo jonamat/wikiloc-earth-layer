@@ -1,4 +1,4 @@
-package networklink
+package updates
 
 type Thumbnail struct {
 	ID  uint64 `json:"id"`
@@ -31,13 +31,14 @@ type WikilocResponse struct {
 }
 
 type Description struct {
-	Type           string
-	Rank           uint8
-	Distance       string
-	DistanceUnits  string
-	Elevation      string
-	ElevationUnits string
-	Author         string
-	Link           string
-	Thumbnails     []Thumbnail
+	Type            string
+	Rank            uint8
+	Distance        string
+	DistanceUnits   string
+	Elevation       string
+	ElevationUnits  string
+	Author          string
+	Link            string
+	PathDescription string
+	Thumbnails      []Thumbnail
 }

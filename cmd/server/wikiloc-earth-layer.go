@@ -10,7 +10,7 @@ import (
 	imgtext "github.com/jonamat/wikiloc-earth-layer/pkg/controllers/imgtext"
 	"github.com/jonamat/wikiloc-earth-layer/pkg/controllers/index"
 	init_ctr "github.com/jonamat/wikiloc-earth-layer/pkg/controllers/init"
-	updates "github.com/jonamat/wikiloc-earth-layer/pkg/controllers/updates"
+	"github.com/jonamat/wikiloc-earth-layer/pkg/controllers/updates"
 	"github.com/julienschmidt/httprouter"
 	vp "github.com/spf13/viper"
 )

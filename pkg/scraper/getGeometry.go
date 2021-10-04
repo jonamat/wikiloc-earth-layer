@@ -24,6 +24,7 @@ func GetGeometry(html *string) ([]Coordinates, error) {
 			// Remove = and ;
 			index := strings.Index(line, "=")
 			rowData = line[index+1 : len(line)-1]
+			break
 		}
 	}
 	if len(rowData) == 0 {
