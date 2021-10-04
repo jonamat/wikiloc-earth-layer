@@ -9,7 +9,7 @@ import (
 	"time"
 
 	_setup "github.com/jonamat/wikiloc-earth-layer/pkg/_setup"
-	imgtools "github.com/jonamat/wikiloc-earth-layer/pkg/img_tools"
+	"github.com/jonamat/wikiloc-earth-layer/pkg/imgtools"
 )
 
 const (
