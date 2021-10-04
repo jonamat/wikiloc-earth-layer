@@ -20,9 +20,9 @@ ENV GOARCH=amd64
 COPY . .
 
 # Create server binary, fetch & convert icons, generate init KML
-RUN go run -mod vendor ./cmd/get-icons/get-icons.go \
-& go run -mod vendor ./cmd/gen-kml/gen-kml.go \
-& go build -mod vendor -a -tags netgo -ldflags '-w -extldflags "-static"' -o ./bin/wikiloc-earth-layer ./cmd/server/wikiloc-earth-layer.go \
+RUN go run -mod vendor ./cmd/get-icons \
+& go run -mod vendor ./cmd/gen-kml \
+& go build -mod vendor -a -tags netgo -ldflags '-w -extldflags "-static"' -o ./bin/wikiloc-earth-layer ./cmd/server \
 & wait
 
 

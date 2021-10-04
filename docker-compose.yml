@@ -9,9 +9,43 @@ services:
       PORT: 80
     networks:
       - caddy
-    labels:
-      caddy: wikiloc-earth-layer.jonamat.cloud
-      caddy.reverse_proxy: "{{upstreams 80}}"
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      labels:
+        caddy: wikiloc-earth-layer.jonamat.cloud
+        caddy.reverse_proxy: "{{upstreams 80}}"
+
+  wikiloc-earth-layar-testing:
+    image: jonamat/wikiloc-earth-layer-testing
+    environment:
+      PROTOCOL: https
+      HOST: wikiloc-earth-layer-testing.jonamat.cloud
+      PORT: 80
+    networks:
+      - caddy
+    deploy:
+      mode: replicated
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      labels:
+        caddy: wikiloc-earth-layer-testing.jonamat.cloud
+        caddy.reverse_proxy: "{{upstreams 80}}"
 
 networks:
   caddy:
