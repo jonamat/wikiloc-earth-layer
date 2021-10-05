@@ -39,7 +39,7 @@ func main() {
 		kml.NetworkLink(
 			kml.Name("Wikiloc"),
 
-			kml.Visibility(true),
+			kml.Visibility(false),
 			kml.Open(false),
 			kml.RefreshVisibility(true),
 			kml.FlyToView(false),
