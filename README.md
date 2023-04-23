@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/jonamat/wikiloc-earth-layer/actions">
-    <img alt="GitHub Workflow Status (branch)" src="https://img.shields.io/github/workflow/status/jonamat/wikiloc-earth-layer/Docker/master" />
+    <img alt="GitHub Workflow Status (branch)" src="https://img.shields.io/github/actions/workflow/status/jonamat/wikiloc-earth-layer/build-production.yml?branch=master" />
   </a>
 
   <a href="https://stats.uptimerobot.com/OXAqotNpjv">
