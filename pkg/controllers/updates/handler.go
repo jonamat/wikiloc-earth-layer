@@ -24,6 +24,7 @@ import (
 )
 
 var (
+	// add Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 user agent
 	client              = &http.Client{Timeout: time.Duration(vp.GetInt("connectionTimeout")) * time.Second}
 	distanceUnit        string
 	elevationUnit       string
@@ -35,6 +36,7 @@ var (
 	retryDelay          = time.Duration(vp.GetInt("retryDelay"))
 	connAttempts        = vp.GetInt("connectionAttempts")
 	descriptionTemplate = template.Must(template.ParseFiles(path.Join(vp.GetString("basepath"), "./web/templates/description.tmpl")))
+	userAgent           = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
 )
 
 func init() {
@@ -117,7 +119,7 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	req, _ := http.NewRequest("GET", getTrailsURL, nil)
 	req.Header.Add("referer", getTrailsURL)
 	req.Header.Add("accept-language", "en;q=0.9")
-	req.Header.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36")
+	req.Header.Add("user-agent", userAgent)
 
 	var res *http.Response
 	for c := 0; c < connAttempts; c++ {
@@ -206,7 +208,14 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 			var res *http.Response
 			for c := 0; c < connAttempts; c++ {
-				res, err = client.Get(fmt.Sprintf("https://www.wikiloc.com%s", trail.PrettyURL))
+				req, _ := http.NewRequest("GET", fmt.Sprintf("https://www.wikiloc.com%s", trail.PrettyURL), nil)
+
+				req.Header.Add("referer", getTrailsURL)
+				req.Header.Add("accept-language", "en;q=0.9")
+				req.Header.Add("user-agent", userAgent)
+
+				// res, err = client.Get(fmt.Sprintf("https://www.wikiloc.com%s", trail.PrettyURL))
+				res, err = client.Do(req)
 				if err == nil && res.StatusCode < 300 {
 					break
 				} else {
@@ -215,11 +224,11 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 				}
 			}
 			if err != nil {
-				log.Println(fmt.Sprintf("[%d] Error, trail skipped | %s", i, err.Error()))
+				log.Printf("[%d] Error, trail skipped | %s", i, err.Error())
 				return
 			}
 			if res.StatusCode > 299 {
-				log.Println(fmt.Sprintf("[%d] Wikiloc responded with status code %d, trail skipped", i, res.StatusCode))
+				log.Printf("[%d] Wikiloc responded with status code %d, trail skipped", i, res.StatusCode)
 				return
 			}
 
@@ -227,7 +236,7 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			pageRaw, err := io.ReadAll(res.Body)
 			defer res.Body.Close()
 			if err != nil {
-				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
+				log.Printf("[%d] %s", i, err.Error())
 				return
 			}
 
@@ -237,14 +246,14 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 			html := string(pageRaw)
 			pathGeometry, err := scraper.GetGeometry(&html)
 			if err != nil {
-				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
+				log.Printf("[%d] %s", i, err.Error())
 				return
 			}
 
 			/** Author description of the path */
 			pathDescr, err := scraper.GetDescription(&html)
 			if err != nil {
-				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
+				log.Printf("[%d] %s", i, err.Error())
 			}
 
 			// Create a slice of KML <coordinate> elements from the scraped geometry
@@ -286,12 +295,12 @@ func Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 			var descrBuff bytes.Buffer
 			if err := descriptionTemplate.Execute(&descrBuff, descrData); err != nil {
-				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
+				log.Printf("[%d] %s", i, err.Error())
 				return
 			}
 			descr, err := io.ReadAll(&descrBuff)
 			if err != nil {
-				log.Println(fmt.Sprintf("[%d] %s", i, err.Error()))
+				log.Printf("[%d] %s", i, err.Error())
 				return
 			}
 
