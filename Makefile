@@ -3,6 +3,12 @@ VERSION = ${shell git describe --tag}
 run:
 	go run ./cmd/server
 
+watch:
+	gow run ./cmd/server
+
+download-kml:
+	curl http://localhost:3000/static/wikiloc-earth-layer.kmz -o ./wikiloc-earth-layer.kmz
+
 serve:
 	./bin/wikiloc-earth-layer
 
